@@ -1,0 +1,76 @@
+body, html{
+    background-color: #303030;
+    color: #B0B0B0;
+    font-family: "Bitstream Vera Sans Mono", sans-serif;
+}
+
+input{
+    background-color: #404040;
+    color: #B0B0B0;
+}
+
+button{
+    background-color: #5050AA;
+    color: #B0B0B0;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.requirement_row img{
+    position: relative;
+    top: 3px;
+
+}
+
+.indent_1 span{
+    position: relative;
+    top: -3px;
+}
+
+.lib_input{
+    background-color: rgba(0,0,0,0);
+    border: 0;
+    font-family: "Bitstream Vera Sans Mono", sans-serif;
+    font-size: 19px;
+    width: 90%;
+    position: relative;
+    top: -4px;
+}
+
+.requirement_row{
+    height: 28px;
+}
+
+.requirement_row:nth-child(odd){
+    background-color: #404040;
+}
+
+#input_container{
+    position: relative;
+    left: 100px;
+    top: 6px;
+}
+
+#requirements_list_container{
+    padding: 40px;
+    border: 2px dashed #B0B0B0;
+    position: relative;
+    top: 40px;
+    left: 100px;
+    width: 600px;
+}
+
+.hidden_file{
+    opacity: 50%;
+}
+
+.indent_1{
+    margin-left: 27px;
+}
+.indent_2{
+    margin-left: 54px;
+}
+
+.icon_img{
+    width: 24px;
+}
