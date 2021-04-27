@@ -1,0 +1,5 @@
+[x] check if fonts/, img/, sounds/  are used and add them in the header if so.
+
+[ ] check if secrets.py is needed and draw it in the header
+
+[x] add triangles to generated folders
