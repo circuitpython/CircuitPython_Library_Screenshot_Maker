@@ -4,6 +4,8 @@ import os
 
 LEARN_GUIDE_REPO = "../../Adafruit_Learning_System_Guides/"
 
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
+
 with open("adafruit-circuitpython-bundle-20210423.json", "r") as f:
     bundle_data = json.load(f)
 
@@ -12,8 +14,10 @@ def get_files_for_project(project_name):
     found_files = set()
     project_dir = "{}{}/".format(LEARN_GUIDE_REPO, project_name)
     for file in os.listdir(project_dir):
-        #print(file)
-        found_files.add(file)
+        cur_extension = file.split(".")[-1]
+        if cur_extension in SHOWN_FILETYPES:
+            #print(file)
+            found_files.add(file)
     return found_files
 
 def get_libs_for_project(project_name):

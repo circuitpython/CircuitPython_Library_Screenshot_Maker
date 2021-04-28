@@ -16,7 +16,7 @@ ROW_COLOR = "#383838"
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
-SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json"]
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
 """
 libraries_to_render = ['adafruit_bitmap_font',
                        'adafruit_bus_device',
