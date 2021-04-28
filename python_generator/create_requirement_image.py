@@ -1,7 +1,9 @@
+import traceback
+
 from PIL import Image, ImageDraw, ImageFont
 import json
 
-from python_generator.get_imports import get_libs_for_project, get_files_for_project
+from python_generator.get_imports import get_libs_for_project, get_files_for_project, get_learn_guide_cp_projects
 
 OUT_WIDTH = 800
 PADDING = 20
@@ -14,6 +16,7 @@ ROW_COLOR = "#383838"
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json"]
 """
 libraries_to_render = ['adafruit_bitmap_font',
                        'adafruit_bus_device',
@@ -48,6 +51,8 @@ folder_icon = Image.open('img/folder.png')
 folder_hidden_icon = Image.open('img/folder_hidden.png')
 file_icon = Image.open('img/file.png')
 file_hidden_icon = Image.open('img/file_hidden.png')
+file_empty_icon = Image.open('img/file_empty.png')
+file_empty_hidden_icon = Image.open('img/file_empty_hidden.png')
 
 
 def generate_requirement_image(learn_guide_project):
@@ -61,6 +66,12 @@ def generate_requirement_image(learn_guide_project):
                              mask=file_hidden_icon)
                 else:
                     im.paste(file_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=file_icon)
+
+            elif "." in requirement_name[-5:]:
+                if hidden:
+                    im.paste(file_empty_hidden_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=file_empty_icon)
+                else:
+                    im.paste(file_empty_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=file_empty_icon)
             else:
                 if hidden:
                     im.paste(folder_hidden_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2),
@@ -85,13 +96,12 @@ def generate_requirement_image(learn_guide_project):
         make_line(".fseventsd", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 1)), hidden=True,
                   triangle_icon=right_triangle)
         make_line(".metadata_never_index", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 2)),
-                  icon=file_hidden_icon,
+                  icon=file_empty_hidden_icon,
                   hidden=True)
         make_line(".Trashes", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 3)),
-                  icon=file_hidden_icon,
+                  icon=file_empty_hidden_icon,
                   hidden=True)
-        make_line("boot_out.txt", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 4)),
-                  icon=file_icon)
+        make_line("boot_out.txt", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 4)))
         make_line("code.py", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 5)),
                   icon=file_icon)
 
@@ -101,16 +111,20 @@ def generate_requirement_image(learn_guide_project):
         project_files_to_draw = []
         project_folders_to_draw = []
         for cur_file in project_files:
-            if cur_file.endswith(".py"):
-                project_files_to_draw.append(cur_file)
+            if "." in cur_file[-5:]:
+                cur_extension = cur_file.split(".")[-1]
+                if cur_extension in SHOWN_FILETYPES:
+                    if cur_file != "main.py":
+                        project_files_to_draw.append(cur_file)
             else:
                 project_folders_to_draw.append(cur_file)
 
         try:
             project_files_to_draw.remove("code.py")
-            extra_space_for_code = 1
         except ValueError:
-            extra_space_for_code = 0
+            pass
+
+
         for i, file in enumerate(project_files_to_draw):
             make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i ))))
             rows_added += 1
@@ -176,26 +190,42 @@ def generate_requirement_image(learn_guide_project):
                       (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * i)),
                       triangle_icon=triangle_icon)
 
-    libs = get_libs_for_project(learn_guide_project)
-    final_list_to_render = sort_libraries(libs)
 
 
-    project_files_count = len(get_files_for_project(learn_guide_project))
-    if "code.py" in get_files_for_project(learn_guide_project):
-        project_files_count -= 1
-    image_height = PADDING * 2 + 7 * LINE_SPACING + len(final_list_to_render) * LINE_SPACING + (
-                project_files_count) * LINE_SPACING
-    im = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
-    draw = ImageDraw.Draw(im)
+    try:
+        libs = get_libs_for_project(learn_guide_project)
+        final_list_to_render = sort_libraries(libs)
 
-    make_background_highlights(7 + len(final_list_to_render) + project_files_count,
-                               offset=(PADDING, PADDING))
+        project_file_list = get_files_for_project(learn_guide_project)
 
-    make_header((PADDING, PADDING), learn_guide_project)
-    make_libraries(final_list_to_render,
-                   (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))))
+        project_files_count = len(project_file_list)
 
-    im.save("{}_required_files.png".format(learn_guide_project))
+        if "code.py" in project_file_list:
+            project_files_count -= 1
 
+        if "main.py" in project_file_list:
+            project_files_count -= 1
 
-generate_requirement_image("PyPortal_Quarantine_Clock")
+        image_height = PADDING * 2 + 7 * LINE_SPACING + len(final_list_to_render) * LINE_SPACING + (
+                    project_files_count) * LINE_SPACING
+        im = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
+        draw = ImageDraw.Draw(im)
+
+        make_background_highlights(7 + len(final_list_to_render) + project_files_count,
+                                   offset=(PADDING, PADDING))
+
+        make_header((PADDING, PADDING), learn_guide_project)
+        make_libraries(final_list_to_render,
+                       (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))))
+
+        im.save("generated_images/{}_files.png".format(learn_guide_project))
+    except SyntaxError as e:
+        print(e)
+        traceback.print_exc()
+        print("SyntaxError finding imports for {}".format(learn_guide_project))
+
+#print(get_learn_guide_cp_projects())
+
+for cp_project in get_learn_guide_cp_projects():
+    print("making screenshot for: {}".format(cp_project))
+    generate_requirement_image(cp_project)
