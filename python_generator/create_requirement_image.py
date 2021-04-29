@@ -125,10 +125,10 @@ def generate_requirement_image(learn_guide_project):
 
         for i, file in enumerate(project_files_to_draw):
             cur_file_extension = file.split(".")[-1]
-            print("checking {}".format(cur_file_extension))
+            #print("checking {}".format(cur_file_extension))
 
             if cur_file_extension in FILE_TYPE_ICON_MAP:
-                print("found icon for {}".format(cur_file_extension))
+                #print("found icon for {}".format(cur_file_extension))
                 cur_file_icon = FILE_TYPE_ICON_MAP[cur_file_extension]
             else:
                 cur_file_icon = file_empty_icon
