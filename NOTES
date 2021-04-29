@@ -2,6 +2,8 @@
 
 [ ] check if secrets.py is needed and draw it in the header
 
-[ ] icon images for non-code files
+[x] icon images for non-code files
 
 [x] add triangles to generated folders
+
+[ ] Download the bundle JSON data instead of using pre-fetched one

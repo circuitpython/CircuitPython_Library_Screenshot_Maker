@@ -17,27 +17,9 @@ TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
-"""
-libraries_to_render = ['adafruit_bitmap_font',
-                       'adafruit_bus_device',
-                       'adafruit_display_shapes',
-                       'adafruit_display_text',
-                       'adafruit_esp32spi',
-                       'adafruit_hashlib',
-                       'adafruit_imageload',
-                       'adafruit_io',
-                       'adafruit_progressbar',
-                       'adafruit_pyportal',
-                       'adafruit_binascii',
-                       'adafruit_button',
-                       'adafruit_ntp',
-                       'adafruit_requests',
-                       'adafruit_sdcard',
-                       'adafruit_touchscreen',
-                       'neopixel',
-                       'simpleio'
-                       ]
-                       """
+
+
+
 
 f = open("adafruit-circuitpython-bundle-20210423.json", "r")
 bundle_data = json.load(f)
@@ -53,6 +35,22 @@ file_icon = Image.open('img/file.png')
 file_hidden_icon = Image.open('img/file_hidden.png')
 file_empty_icon = Image.open('img/file_empty.png')
 file_empty_hidden_icon = Image.open('img/file_empty_hidden.png')
+
+file_image_icon = Image.open('img/file_image.png')
+file_music_icon = Image.open('img/file_music.png')
+file_font_icon = Image.open('img/file_font.png')
+
+FILE_TYPE_ICON_MAP = {
+    "py": file_icon,
+    "mpy": file_icon,
+    "txt": file_empty_icon,
+    "bmp": file_image_icon,
+    "wav": file_music_icon,
+    "mp3": file_music_icon,
+    "pcf": file_font_icon,
+    "bdf": file_font_icon,
+    "json": file_icon
+}
 
 
 def generate_requirement_image(learn_guide_project):
@@ -126,7 +124,15 @@ def generate_requirement_image(learn_guide_project):
 
 
         for i, file in enumerate(project_files_to_draw):
-            make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i ))))
+            cur_file_extension = file.split(".")[-1]
+            print("checking {}".format(cur_file_extension))
+
+            if cur_file_extension in FILE_TYPE_ICON_MAP:
+                print("found icon for {}".format(cur_file_extension))
+                cur_file_icon = FILE_TYPE_ICON_MAP[cur_file_extension]
+            else:
+                cur_file_icon = file_empty_icon
+            make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i ))), icon=cur_file_icon)
             rows_added += 1
 
         for i, file in enumerate(project_folders_to_draw):
