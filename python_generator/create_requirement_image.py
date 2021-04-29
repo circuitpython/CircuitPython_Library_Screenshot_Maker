@@ -122,20 +122,17 @@ def generate_requirement_image(learn_guide_project):
         except ValueError:
             pass
 
-
-        for i, file in enumerate(project_files_to_draw):
+        for i, file in enumerate(sorted(project_files_to_draw)):
             cur_file_extension = file.split(".")[-1]
-            #print("checking {}".format(cur_file_extension))
 
             if cur_file_extension in FILE_TYPE_ICON_MAP:
-                #print("found icon for {}".format(cur_file_extension))
                 cur_file_icon = FILE_TYPE_ICON_MAP[cur_file_extension]
             else:
                 cur_file_icon = file_empty_icon
             make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i ))), icon=cur_file_icon)
             rows_added += 1
 
-        for i, file in enumerate(project_folders_to_draw):
+        for i, file in enumerate(sorted(project_folders_to_draw)):
             make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i + len(project_files_to_draw)))),
                       triangle_icon=right_triangle)
             rows_added += 1
