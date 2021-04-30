@@ -1,8 +1,12 @@
 This folder contains scripts that can be run to create requirement screenshots for all of the learn guide projects
 
-To use the scripts you must set `LEARN_GUIDE_REPO` to point to the learn guide repo.
+To use the scripts you must set `LEARN_GUIDE_REPO` inside of `get_imports.py` to point to the location of learn guide repo.
 
-Then you can run
+default value is `"../../Adafruit_Learning_System_Guides/"`
+
+One directory above the root of this repo.
+
+With that pointed at a learn guide repo you can run:
 
 ```
 python get_bundle_data.py
