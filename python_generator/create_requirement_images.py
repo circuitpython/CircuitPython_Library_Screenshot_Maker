@@ -226,7 +226,7 @@ def generate_requirement_image(learn_guide_project):
         make_libraries(final_list_to_render,
                        (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))))
 
-        im.save("generated_images/{}_files.png".format(learn_guide_project))
+        im.save("generated_images/{}.png".format(learn_guide_project))
     except SyntaxError as e:
         print(e)
         traceback.print_exc()
