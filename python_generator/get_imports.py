@@ -12,7 +12,7 @@ SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"
 
 def get_bundle(tag):
     url = f"https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"
-    print("get bundle metadata from {url}")
+    print(f"get bundle metadata from {url}")
     r = requests.get(url)
     with open(BUNDLE_DATA, "wb") as f:
         f.write(r.content)

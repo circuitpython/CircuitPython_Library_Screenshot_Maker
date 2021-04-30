@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
-import traceback
 from multiprocessing import Pool
+import json
+import os
+import traceback
 
 from PIL import Image, ImageDraw, ImageFont
-import json
 
 from get_imports import get_libs_for_project, get_files_for_project, get_learn_guide_cp_projects
+
+os.makedirs("generated_images", exist_ok=True)
 
 OUT_WIDTH = 800
 PADDING = 20
