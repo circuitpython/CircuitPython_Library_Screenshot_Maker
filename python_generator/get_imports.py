@@ -14,9 +14,13 @@ def get_files_for_project(project_name):
     found_files = set()
     project_dir = "{}{}/".format(LEARN_GUIDE_REPO, project_name)
     for file in os.listdir(project_dir):
-        cur_extension = file.split(".")[-1]
-        if cur_extension in SHOWN_FILETYPES:
-            #print(file)
+        if "." in file:
+            cur_extension = file.split(".")[-1]
+            if cur_extension in SHOWN_FILETYPES:
+                #print(file)
+                found_files.add(file)
+        else:
+            # add dir
             found_files.add(file)
     return found_files
 
