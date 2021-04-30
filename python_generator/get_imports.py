@@ -6,9 +6,7 @@ LEARN_GUIDE_REPO = "../../Adafruit_Learning_System_Guides/"
 
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
 
-
-
-with open("adafruit-circuitpython-bundle-20210423.json", "r") as f:
+with open("latest_bundle_data.json", "r") as f:
     bundle_data = json.load(f)
 
 

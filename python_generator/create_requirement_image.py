@@ -18,10 +18,7 @@ HIDDEN_TEXT_COLOR = "#808080"
 
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
 
-
-
-
-f = open("adafruit-circuitpython-bundle-20210423.json", "r")
+f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
 f.close()
 
