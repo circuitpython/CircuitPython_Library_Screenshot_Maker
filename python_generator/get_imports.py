@@ -103,7 +103,7 @@ with open("latest_bundle_data.json", "r") as f:
 
 def get_files_for_project(project_name):
     found_files = set()
-    project_dir = "{}{}/".format(LEARN_GUIDE_REPO, project_name)
+    project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project_name)
     for file in os.listdir(project_dir):
         if "." in file:
             cur_extension = file.split(".")[-1]
@@ -149,7 +149,7 @@ def get_learn_guide_cp_projects():
         return False
     all_projects = get_learn_guide_projects()
     for project in all_projects:
-        project_dir = "{}{}/".format(LEARN_GUIDE_REPO, project)
+        project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project)
         try:
             if has_py_file(project_dir):
                 cp_projects.append(project)
