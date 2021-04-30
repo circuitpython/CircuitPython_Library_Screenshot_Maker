@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 import traceback
+from multiprocessing import Pool
 
 from PIL import Image, ImageDraw, ImageFont
 import json
@@ -49,6 +52,8 @@ FILE_TYPE_ICON_MAP = {
     "json": file_icon
 }
 
+for img in FILE_TYPE_ICON_MAP.values():
+    img.load()
 
 def generate_requirement_image(learn_guide_project):
     def make_line(requirement_name, position=(0, 0), icon=None, hidden=False, triangle_icon=None):
@@ -224,8 +229,7 @@ def generate_requirement_image(learn_guide_project):
         traceback.print_exc()
         print("SyntaxError finding imports for {}".format(learn_guide_project))
 
-#print(get_learn_guide_cp_projects())
-
-for cp_project in get_learn_guide_cp_projects():
-    print("making screenshot for: {}".format(cp_project))
-    generate_requirement_image(cp_project)
+if __name__ == '__main__':
+    with Pool() as p:
+        for _ in p.imap(generate_requirement_image, get_learn_guide_cp_projects()):
+            pass
