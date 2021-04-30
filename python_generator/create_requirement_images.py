@@ -3,7 +3,7 @@ import traceback
 from PIL import Image, ImageDraw, ImageFont
 import json
 
-from python_generator.get_imports import get_libs_for_project, get_files_for_project, get_learn_guide_cp_projects
+from get_imports import get_libs_for_project, get_files_for_project, get_learn_guide_cp_projects
 
 OUT_WIDTH = 800
 PADDING = 20
