@@ -4,8 +4,23 @@ SPDX-FileCopyrightText: 2021 foamyguy
 SPDX-License-Identifier: MIT
 -->
 
-This project will contain tools for automating the creation of CircuitPython requirement screenshots.
+This folder contains scripts that can be run to create requirement screenshots for all of the learn guide projects
 
-[html_app](html_app) is a standalone HTML/JS version of the concept that is more manual.
+To use the scripts you must set `LEARN_GUIDE_REPO` inside of `get_imports.py` to point to the location of learn guide repo.
 
-[python_generator](python_generator) will hold scripts that generate similar images as png files with pillow.
+default value is `"../../Adafruit_Learning_System_Guides/"`
+
+One directory above the root of this repo.
+
+With that pointed at a learn guide repo you can run:
+
+```
+python get_bundle_data.py
+```
+to download `latest_bundle_data.json`
+
+Once this file is present run
+```
+python create_requirement_images.py
+```
+It will create images in the `generated_images` directory.
