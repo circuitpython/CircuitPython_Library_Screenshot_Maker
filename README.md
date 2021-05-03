@@ -15,12 +15,6 @@ One directory above the root of this repo.
 With that pointed at a learn guide repo you can run:
 
 ```
-python get_bundle_data.py
-```
-to download `latest_bundle_data.json`
-
-Once this file is present run
-```
 python create_requirement_images.py
 ```
 It will create images in the `generated_images` directory.

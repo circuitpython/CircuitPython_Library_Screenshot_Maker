@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Create requirement screenshots for learn guide projects
+"""
+
 # SPDX-FileCopyrightText: 2021 foamyguy
 #
 # SPDX-License-Identifier: MIT
@@ -63,30 +67,35 @@ FILE_TYPE_ICON_MAP = {
     "json": file_icon,
 }
 
-for img in FILE_TYPE_ICON_MAP.values():
-    img.load()
+# If this is not done, the images fail to load in the subprocesses.
+for file_icon in FILE_TYPE_ICON_MAP.values():
+    file_icon.load()
 
 
-def generate_requirement_image(learn_guide_project):
+def generate_requirement_image(
+    learn_guide_project,
+):  # pylint: disable=too-many-statements
+    """Generate a single requirement image"""
+
     def make_line(
         requirement_name, position=(0, 0), icon=None, hidden=False, triangle_icon=None
-    ):
+    ):  # pylint: disable=too-many-branches
         if triangle_icon:
-            im.paste(
+            img.paste(
                 triangle_icon,
                 (position[0] - 24, position[1] + (LINE_SPACING - 24) // 2),
                 mask=triangle_icon,
             )
-        if icon == None:
+        if icon is None:
             if requirement_name.endswith(".mpy") or requirement_name.endswith(".py"):
                 if hidden:
-                    im.paste(
+                    img.paste(
                         file_hidden_icon,
                         (position[0], position[1] + (LINE_SPACING - 24) // 2),
                         mask=file_hidden_icon,
                     )
                 else:
-                    im.paste(
+                    img.paste(
                         file_icon,
                         (position[0], position[1] + (LINE_SPACING - 24) // 2),
                         mask=file_icon,
@@ -94,32 +103,32 @@ def generate_requirement_image(learn_guide_project):
 
             elif "." in requirement_name[-5:]:
                 if hidden:
-                    im.paste(
+                    img.paste(
                         file_empty_hidden_icon,
                         (position[0], position[1] + (LINE_SPACING - 24) // 2),
                         mask=file_empty_icon,
                     )
                 else:
-                    im.paste(
+                    img.paste(
                         file_empty_icon,
                         (position[0], position[1] + (LINE_SPACING - 24) // 2),
                         mask=file_empty_icon,
                     )
             else:
                 if hidden:
-                    im.paste(
+                    img.paste(
                         folder_hidden_icon,
                         (position[0], position[1] + (LINE_SPACING - 24) // 2),
                         mask=folder_hidden_icon,
                     )
                 else:
-                    im.paste(
+                    img.paste(
                         folder_icon,
                         (position[0], position[1] + (LINE_SPACING - 24) // 2),
                         mask=folder_icon,
                     )
         else:
-            im.paste(
+            img.paste(
                 icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=icon
             )
 
@@ -193,10 +202,7 @@ def generate_requirement_image(learn_guide_project):
         for i, file in enumerate(sorted(project_files_to_draw)):
             cur_file_extension = file.split(".")[-1]
 
-            if cur_file_extension in FILE_TYPE_ICON_MAP:
-                cur_file_icon = FILE_TYPE_ICON_MAP[cur_file_extension]
-            else:
-                cur_file_icon = file_empty_icon
+            cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, file_empty_icon)
             make_line(
                 file,
                 (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i))),
@@ -305,8 +311,8 @@ def generate_requirement_image(learn_guide_project):
             + len(final_list_to_render) * LINE_SPACING
             + (project_files_count) * LINE_SPACING
         )
-        im = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
-        draw = ImageDraw.Draw(im)
+        img = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
+        draw = ImageDraw.Draw(img)
 
         make_background_highlights(
             7 + len(final_list_to_render) + project_files_count,
@@ -319,9 +325,9 @@ def generate_requirement_image(learn_guide_project):
             (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
         )
 
-        im.save("generated_images/{}.png".format(learn_guide_project))
-    except SyntaxError as e:
-        print(e)
+        img.save("generated_images/{}.png".format(learn_guide_project))
+    except SyntaxError as exc:
+        print(exc)
         traceback.print_exc()
         print("SyntaxError finding imports for {}".format(learn_guide_project))
 
