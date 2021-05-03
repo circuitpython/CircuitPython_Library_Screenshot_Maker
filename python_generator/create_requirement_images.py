@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# SPDX-FileCopyrightText: 2021 foamyguy
+#
+# SPDX-License-Identifier: MIT
+
 from multiprocessing import Pool
 import json
 import os
@@ -7,7 +11,11 @@ import traceback
 
 from PIL import Image, ImageDraw, ImageFont
 
-from get_imports import get_libs_for_project, get_files_for_project, get_learn_guide_cp_projects
+from get_imports import (
+    get_libs_for_project,
+    get_files_for_project,
+    get_learn_guide_cp_projects,
+)
 
 os.makedirs("generated_images", exist_ok=True)
 
@@ -29,19 +37,19 @@ bundle_data = json.load(f)
 f.close()
 
 font = ImageFont.truetype("Roboto-Regular.ttf", 24)
-right_triangle = Image.open('img/right_triangle.png')
-down_triangle = Image.open('img/down_triangle.png')
+right_triangle = Image.open("img/right_triangle.png")
+down_triangle = Image.open("img/down_triangle.png")
 
-folder_icon = Image.open('img/folder.png')
-folder_hidden_icon = Image.open('img/folder_hidden.png')
-file_icon = Image.open('img/file.png')
-file_hidden_icon = Image.open('img/file_hidden.png')
-file_empty_icon = Image.open('img/file_empty.png')
-file_empty_hidden_icon = Image.open('img/file_empty_hidden.png')
+folder_icon = Image.open("img/folder.png")
+folder_hidden_icon = Image.open("img/folder_hidden.png")
+file_icon = Image.open("img/file.png")
+file_hidden_icon = Image.open("img/file_hidden.png")
+file_empty_icon = Image.open("img/file_empty.png")
+file_empty_hidden_icon = Image.open("img/file_empty_hidden.png")
 
-file_image_icon = Image.open('img/file_image.png')
-file_music_icon = Image.open('img/file_music.png')
-file_font_icon = Image.open('img/file_font.png')
+file_image_icon = Image.open("img/file_image.png")
+file_music_icon = Image.open("img/file_music.png")
+file_font_icon = Image.open("img/file_font.png")
 
 FILE_TYPE_ICON_MAP = {
     "py": file_icon,
@@ -52,61 +60,116 @@ FILE_TYPE_ICON_MAP = {
     "mp3": file_music_icon,
     "pcf": file_font_icon,
     "bdf": file_font_icon,
-    "json": file_icon
+    "json": file_icon,
 }
 
 for img in FILE_TYPE_ICON_MAP.values():
     img.load()
 
+
 def generate_requirement_image(learn_guide_project):
-    def make_line(requirement_name, position=(0, 0), icon=None, hidden=False, triangle_icon=None):
+    def make_line(
+        requirement_name, position=(0, 0), icon=None, hidden=False, triangle_icon=None
+    ):
         if triangle_icon:
-            im.paste(triangle_icon, (position[0] - 24, position[1] + (LINE_SPACING - 24) // 2), mask=triangle_icon)
+            im.paste(
+                triangle_icon,
+                (position[0] - 24, position[1] + (LINE_SPACING - 24) // 2),
+                mask=triangle_icon,
+            )
         if icon == None:
-            if (requirement_name.endswith(".mpy") or requirement_name.endswith(".py")):
+            if requirement_name.endswith(".mpy") or requirement_name.endswith(".py"):
                 if hidden:
-                    im.paste(file_hidden_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2),
-                             mask=file_hidden_icon)
+                    im.paste(
+                        file_hidden_icon,
+                        (position[0], position[1] + (LINE_SPACING - 24) // 2),
+                        mask=file_hidden_icon,
+                    )
                 else:
-                    im.paste(file_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=file_icon)
+                    im.paste(
+                        file_icon,
+                        (position[0], position[1] + (LINE_SPACING - 24) // 2),
+                        mask=file_icon,
+                    )
 
             elif "." in requirement_name[-5:]:
                 if hidden:
-                    im.paste(file_empty_hidden_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=file_empty_icon)
+                    im.paste(
+                        file_empty_hidden_icon,
+                        (position[0], position[1] + (LINE_SPACING - 24) // 2),
+                        mask=file_empty_icon,
+                    )
                 else:
-                    im.paste(file_empty_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=file_empty_icon)
+                    im.paste(
+                        file_empty_icon,
+                        (position[0], position[1] + (LINE_SPACING - 24) // 2),
+                        mask=file_empty_icon,
+                    )
             else:
                 if hidden:
-                    im.paste(folder_hidden_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2),
-                             mask=folder_hidden_icon)
+                    im.paste(
+                        folder_hidden_icon,
+                        (position[0], position[1] + (LINE_SPACING - 24) // 2),
+                        mask=folder_hidden_icon,
+                    )
                 else:
-                    im.paste(folder_icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=folder_icon)
+                    im.paste(
+                        folder_icon,
+                        (position[0], position[1] + (LINE_SPACING - 24) // 2),
+                        mask=folder_icon,
+                    )
         else:
-            im.paste(icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=icon)
+            im.paste(
+                icon, (position[0], position[1] + (LINE_SPACING - 24) // 2), mask=icon
+            )
 
         if not hidden:
-            draw.text((position[0] + 30, position[1] + LINE_SPACING // 2),
-                      requirement_name, fill=TEXT_COLOR, anchor="lm",
-                      font=font)
+            draw.text(
+                (position[0] + 30, position[1] + LINE_SPACING // 2),
+                requirement_name,
+                fill=TEXT_COLOR,
+                anchor="lm",
+                font=font,
+            )
         else:
-            draw.text((position[0] + 30, position[1] + LINE_SPACING // 2),
-                      requirement_name, fill=HIDDEN_TEXT_COLOR, anchor="lm",
-                      font=font)
+            draw.text(
+                (position[0] + 30, position[1] + LINE_SPACING // 2),
+                requirement_name,
+                fill=HIDDEN_TEXT_COLOR,
+                anchor="lm",
+                font=font,
+            )
 
     def make_header(position, learn_guide_project):
         # Static files
         make_line("CIRCUITPY", position)
-        make_line(".fseventsd", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 1)), hidden=True,
-                  triangle_icon=right_triangle)
-        make_line(".metadata_never_index", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 2)),
-                  icon=file_empty_hidden_icon,
-                  hidden=True)
-        make_line(".Trashes", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 3)),
-                  icon=file_empty_hidden_icon,
-                  hidden=True)
-        make_line("boot_out.txt", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 4)))
-        make_line("code.py", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 5)),
-                  icon=file_icon)
+        make_line(
+            ".fseventsd",
+            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 1)),
+            hidden=True,
+            triangle_icon=right_triangle,
+        )
+        make_line(
+            ".metadata_never_index",
+            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 2)),
+            icon=file_empty_hidden_icon,
+            hidden=True,
+        )
+        make_line(
+            ".Trashes",
+            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 3)),
+            icon=file_empty_hidden_icon,
+            hidden=True,
+        )
+        make_line(
+            "boot_out.txt",
+            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 4)),
+        )
+        make_line(
+            "code.py",
+            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 5)),
+            icon=file_icon,
+        )
 
         # dynamic files from project dir in learn guide repo
         project_files = get_files_for_project(learn_guide_project)
@@ -134,29 +197,51 @@ def generate_requirement_image(learn_guide_project):
                 cur_file_icon = FILE_TYPE_ICON_MAP[cur_file_extension]
             else:
                 cur_file_icon = file_empty_icon
-            make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i ))), icon=cur_file_icon)
+            make_line(
+                file,
+                (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i))),
+                icon=cur_file_icon,
+            )
             rows_added += 1
 
         for i, file in enumerate(sorted(project_folders_to_draw)):
-            make_line(file, (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i + len(project_files_to_draw)))),
-                      triangle_icon=right_triangle)
+            make_line(
+                file,
+                (
+                    position[0] + INDENT_SIZE,
+                    position[1] + (LINE_SPACING * (6 + i + len(project_files_to_draw))),
+                ),
+                triangle_icon=right_triangle,
+            )
             rows_added += 1
 
-        make_line("lib", (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (5 + rows_added + 1))),
-                  triangle_icon=down_triangle)
+        make_line(
+            "lib",
+            (
+                position[0] + INDENT_SIZE,
+                position[1] + (LINE_SPACING * (5 + rows_added + 1)),
+            ),
+            triangle_icon=down_triangle,
+        )
 
     def make_background_highlights(rows, offset=(0, 0)):
         for i in range(rows):
             if i % 2 == 0:
-                draw.rectangle([
-                    (0 + offset[0], i * LINE_SPACING + offset[1]),
-                    (OUT_WIDTH - offset[0], (i + 1) * LINE_SPACING + offset[1])],
-                    fill=HIGHLIGHT_ROW_COLOR)
+                draw.rectangle(
+                    [
+                        (0 + offset[0], i * LINE_SPACING + offset[1]),
+                        (OUT_WIDTH - offset[0], (i + 1) * LINE_SPACING + offset[1]),
+                    ],
+                    fill=HIGHLIGHT_ROW_COLOR,
+                )
             else:
-                draw.rectangle([
-                    (0 + offset[0], i * LINE_SPACING + offset[1]),
-                    (OUT_WIDTH - offset[0], (i + 1) * LINE_SPACING + offset[1])],
-                    fill=ROW_COLOR)
+                draw.rectangle(
+                    [
+                        (0 + offset[0], i * LINE_SPACING + offset[1]),
+                        (OUT_WIDTH - offset[0], (i + 1) * LINE_SPACING + offset[1]),
+                    ],
+                    fill=ROW_COLOR,
+                )
 
     def get_dependencies(libraries):
         package_list = set()
@@ -194,11 +279,11 @@ def generate_requirement_image(learn_guide_project):
             triangle_icon = None
             if not lib_name.endswith(".mpy"):
                 triangle_icon = right_triangle
-            make_line(lib_name,
-                      (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * i)),
-                      triangle_icon=triangle_icon)
-
-
+            make_line(
+                lib_name,
+                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * i)),
+                triangle_icon=triangle_icon,
+            )
 
     try:
         libs = get_libs_for_project(learn_guide_project)
@@ -214,17 +299,25 @@ def generate_requirement_image(learn_guide_project):
         if "main.py" in project_file_list:
             project_files_count -= 1
 
-        image_height = PADDING * 2 + 7 * LINE_SPACING + len(final_list_to_render) * LINE_SPACING + (
-                    project_files_count) * LINE_SPACING
+        image_height = (
+            PADDING * 2
+            + 7 * LINE_SPACING
+            + len(final_list_to_render) * LINE_SPACING
+            + (project_files_count) * LINE_SPACING
+        )
         im = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
         draw = ImageDraw.Draw(im)
 
-        make_background_highlights(7 + len(final_list_to_render) + project_files_count,
-                                   offset=(PADDING, PADDING))
+        make_background_highlights(
+            7 + len(final_list_to_render) + project_files_count,
+            offset=(PADDING, PADDING),
+        )
 
         make_header((PADDING, PADDING), learn_guide_project)
-        make_libraries(final_list_to_render,
-                       (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))))
+        make_libraries(
+            final_list_to_render,
+            (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
+        )
 
         im.save("generated_images/{}.png".format(learn_guide_project))
     except SyntaxError as e:
@@ -232,7 +325,8 @@ def generate_requirement_image(learn_guide_project):
         traceback.print_exc()
         print("SyntaxError finding imports for {}".format(learn_guide_project))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     with Pool() as p:
         for _ in p.imap(generate_requirement_image, get_learn_guide_cp_projects()):
             pass

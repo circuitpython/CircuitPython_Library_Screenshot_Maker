@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 foamyguy
+
+SPDX-License-Identifier: MIT
+-->
+
 This project will contain tools for automating the creation of CircuitPython requirement screenshots.
 
 [html_app](html_app) is a standalone HTML/JS version of the concept that is more manual.

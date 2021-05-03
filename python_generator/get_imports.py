@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 foamyguy
+#
+# SPDX-License-Identifier: MIT
+
 import requests
 import json
 import os
@@ -6,9 +10,12 @@ import findimports
 BUNDLE_DATA = "latest_bundle_data.json"
 BUNDLE_TAG = "latest_bundle_tag.json"
 
-LEARN_GUIDE_REPO = os.environ.get('LEARN_GUIDE_REPO', "../../Adafruit_Learning_System_Guides/")
+LEARN_GUIDE_REPO = os.environ.get(
+    "LEARN_GUIDE_REPO", "../../Adafruit_Learning_System_Guides/"
+)
 
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
+
 
 def get_bundle(tag):
     url = f"https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"
@@ -17,7 +24,10 @@ def get_bundle(tag):
     with open(BUNDLE_DATA, "wb") as f:
         f.write(r.content)
 
+
 LATEST_BUNDLE_VERSION = ""
+
+
 def get_latest_tag():
     """
     Find the value of the latest tag for the Adafruit CircuitPython library
@@ -30,6 +40,7 @@ def get_latest_tag():
             "https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/latest"
         )
     return LATEST_BUNDLE_VERSION
+
 
 def get_latest_release_from_url(url):
     """
@@ -60,6 +71,7 @@ def get_latest_tag():
             "https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/latest"
         )
     return LATEST_BUNDLE_VERSION
+
 
 def ensure_latest_bundle():
     """
@@ -95,6 +107,7 @@ def ensure_latest_bundle():
     else:
         print(f"Current library bundle up to date {tag}")
 
+
 ensure_latest_bundle()
 
 with open("latest_bundle_data.json", "r") as f:
@@ -108,12 +121,13 @@ def get_files_for_project(project_name):
         if "." in file:
             cur_extension = file.split(".")[-1]
             if cur_extension in SHOWN_FILETYPES:
-                #print(file)
+                # print(file)
                 found_files.add(file)
         else:
             # add dir
             found_files.add(file)
     return found_files
+
 
 def get_libs_for_project(project_name):
     found_libs = set()
@@ -125,7 +139,7 @@ def get_libs_for_project(project_name):
             found_imports = findimports.find_imports("{}{}".format(project_dir, file))
 
             for cur_import in found_imports:
-                cur_lib = cur_import.name.split('.')[0]
+                cur_lib = cur_import.name.split(".")[0]
                 if cur_lib in bundle_data:
                     found_libs.add(cur_lib)
 
@@ -138,6 +152,7 @@ def get_learn_guide_projects():
 
 def get_learn_guide_cp_projects():
     cp_projects = []
+
     def has_py_file(dir):
         dir_files = os.listdir(dir)
         for file in dir_files:
@@ -147,6 +162,7 @@ def get_learn_guide_cp_projects():
                 else:
                     return False
         return False
+
     all_projects = get_learn_guide_projects()
     for project in all_projects:
         project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project)

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 foamyguy
+
+SPDX-License-Identifier: MIT
+-->
+
 This folder contains scripts that can be run to create requirement screenshots for all of the learn guide projects
 
 To use the scripts you must set `LEARN_GUIDE_REPO` inside of `get_imports.py` to point to the location of learn guide repo.
