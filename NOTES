@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 foamyguy
+
+SPDX-License-Identifier: MIT
+-->
+
 [x] check if fonts/, img/, sounds/  are used and add them in the header if so.
 
 [ ] check if secrets.py is needed and draw it in the header
