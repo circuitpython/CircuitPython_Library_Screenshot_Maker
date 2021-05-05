@@ -16,7 +16,7 @@ BUNDLE_DATA = "latest_bundle_data.json"
 BUNDLE_TAG = "latest_bundle_tag.json"
 
 LEARN_GUIDE_REPO = os.environ.get(
-    "LEARN_GUIDE_REPO", "../../Adafruit_Learning_System_Guides/"
+    "LEARN_GUIDE_REPO", "../Adafruit_Learning_System_Guides/"
 )
 
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
@@ -140,28 +140,28 @@ def get_libs_for_project(project_name):
     return found_libs
 
 
-def get_learn_guide_projects():
-    """Get the list of all folders in the learn guide"""
-    return os.listdir(LEARN_GUIDE_REPO)
-
-
 def get_learn_guide_cp_projects():
     """Get the list of all circuitpython projects, according to some heuristics"""
-    cp_projects = []
+    for dirpath, dirnames, filenames in os.walk(LEARN_GUIDE_REPO):
+        # The top-level needs special treatment
+        if dirpath == LEARN_GUIDE_REPO:
+            dirnames.remove(".git")
+            continue
+        # Skip this folder and all subfolders
+        if ".circuitpython.skip" in filenames:
+            del dirnames[:]
+            continue
+        # Skip files in this folder, but handle sub-folders
+        if ".circuitpython.skip-here" in filenames:
+            continue
+        # Do not reurse, but handle files in this folder
+        if ".circuitpython.skip-sub" in filenames:
+            del dirnames[:]
 
-    def has_py_file(location):
-        dir_files = os.listdir(location)
-        for file in dir_files:
-            if file.endswith(".py"):
-                return ".circuitpython.skip" not in dir_files
-        return False
+        if any(f for f in filenames if f.endswith(".py")):
+            yield os.path.relpath(dirpath, LEARN_GUIDE_REPO)
 
-    all_projects = get_learn_guide_projects()
-    for project in all_projects:
-        project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project)
-        try:
-            if has_py_file(project_dir):
-                cp_projects.append(project)
-        except NotADirectoryError:
-            pass
-    return cp_projects
+
+if __name__ == "__main__":
+    for p in get_learn_guide_cp_projects():
+        print("PROJECT", p)

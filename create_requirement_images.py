@@ -325,7 +325,9 @@ def generate_requirement_image(
             (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
         )
 
-        img.save("generated_images/{}.png".format(learn_guide_project))
+        img.save(
+            "generated_images/{}.png".format(learn_guide_project.replace("/", "_"))
+        )
     except SyntaxError as exc:
         print(exc)
         traceback.print_exc()
