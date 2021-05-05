@@ -145,22 +145,23 @@ def get_learn_guide_cp_projects():
     for dirpath, dirnames, filenames in os.walk(LEARN_GUIDE_REPO):
         # The top-level needs special treatment
         if dirpath == LEARN_GUIDE_REPO:
-            dirnames.remove('.git')
+            dirnames.remove(".git")
             continue
         # Skip this folder and all subfolders
-        if '.circuitpython.skip' in filenames:
+        if ".circuitpython.skip" in filenames:
             del dirnames[:]
+            continue
+        # Skip files in this folder, but handle sub-folders
+        if ".circuitpython.skip-here" in filenames:
             continue
         # Do not reurse, but handle files in this folder
-        elif '.circuitpython.skip-sub' in filenames:
+        if ".circuitpython.skip-sub" in filenames:
             del dirnames[:]
-        # Skip files in this folder, but handle sub-folders
-        elif '.circuitpython.skip-here' in filenames:
-            continue
 
         if any(f for f in filenames if f.endswith(".py")):
             yield os.path.relpath(dirpath, LEARN_GUIDE_REPO)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     for p in get_learn_guide_cp_projects():
         print("PROJECT", p)
