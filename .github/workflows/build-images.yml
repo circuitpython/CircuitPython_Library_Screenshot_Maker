@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019 Anthony Sottile
+#
+# SPDX-License-Identifier: MIT
+
+name: build-images
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  build-images:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: python3 -mpip install -r requirements.txt
+    - run: git clone --depth=1 https://github.com/adafruit/Adafruit_Learning_System_Guides learn
+    - run: env LEARN_GUIDE_REPO=learn/ python3 create_requirement_images.py
+    - uses: actions/upload-artifact@v2
+      with:
+        name: images
+        path: generated_images
