@@ -20,7 +20,7 @@ LEARN_GUIDE_REPO = os.environ.get(
 )
 
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
-
+SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
 def get_bundle(tag):
     """Download the given bundle's data to BUNDLE_DATA"""
@@ -139,14 +139,47 @@ def get_libs_for_project(project_name):
 
     return found_libs
 
+def get_files_for_example(example_path):
+    """Get the set of files for a library example"""
+    found_files = set(('code.py',))
+    example_dir = os.path.dirname(example_path)
+    for file in os.listdir(example_dir):
+        if "." in file:
+            cur_extension = file.split(".")[-1]
+            if cur_extension in SHOWN_FILETYPES_EXAMPLE:
+                # print(file)
+                found_files.add(file)
+        else:
+            # add dir
+            found_files.add(file)
+    return found_files
+
+
+def get_libs_for_example(example_path):
+    """Get the set of libraries for a library example"""
+    found_libs = set()
+    found_imports = []
+    found_imports = findimports.find_imports(example_path)
+
+    for cur_import in found_imports:
+        cur_lib = cur_import.name.split(".")[0]
+        if cur_lib in bundle_data:
+            found_libs.add(cur_lib)
+
+    return found_libs
+
+
 
 def get_learn_guide_cp_projects():
     """Get the list of all circuitpython projects, according to some heuristics"""
     for dirpath, dirnames, filenames in os.walk(LEARN_GUIDE_REPO):
+        # Don't consider hidden directories
+        dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+
         # The top-level needs special treatment
         if dirpath == LEARN_GUIDE_REPO:
-            dirnames.remove(".git")
             continue
+
         # Skip this folder and all subfolders
         if ".circuitpython.skip" in filenames:
             del dirnames[:]
