@@ -22,6 +22,7 @@ LEARN_GUIDE_REPO = os.environ.get(
 SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
 SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
+
 def get_bundle(tag):
     """Download the given bundle's data to BUNDLE_DATA"""
     url = f"https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"  # pylint: disable=line-too-long
@@ -139,9 +140,10 @@ def get_libs_for_project(project_name):
 
     return found_libs
 
+
 def get_files_for_example(example_path):
     """Get the set of files for a library example"""
-    found_files = set(('code.py',))
+    found_files = set(("code.py",))
     example_dir = os.path.dirname(example_path)
     for file in os.listdir(example_dir):
         if "." in file:
@@ -169,12 +171,11 @@ def get_libs_for_example(example_path):
     return found_libs
 
 
-
 def get_learn_guide_cp_projects():
     """Get the list of all circuitpython projects, according to some heuristics"""
     for dirpath, dirnames, filenames in os.walk(LEARN_GUIDE_REPO):
         # Don't consider hidden directories
-        dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
 
         # The top-level needs special treatment
         if dirpath == LEARN_GUIDE_REPO:

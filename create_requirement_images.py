@@ -11,7 +11,6 @@ Create requirement screenshots for learn guide projects
 from multiprocessing import Pool
 import json
 import os
-import traceback
 
 import click
 from PIL import Image, ImageDraw, ImageFont
@@ -43,22 +42,26 @@ f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
 f.close()
 
-def ASSET(x):
+
+def asset_path(x):
+    """Return the location of a file shipped with the screenshot maker"""
     return os.path.join(os.path.dirname(__file__), x)
-font = ImageFont.truetype(ASSET("Roboto-Regular.ttf"), 24)
-right_triangle = Image.open(ASSET("img/right_triangle.png"))
-down_triangle = Image.open(ASSET("img/down_triangle.png"))
 
-folder_icon = Image.open(ASSET("img/folder.png"))
-folder_hidden_icon = Image.open(ASSET("img/folder_hidden.png"))
-file_icon = Image.open(ASSET("img/file.png"))
-file_hidden_icon = Image.open(ASSET("img/file_hidden.png"))
-file_empty_icon = Image.open(ASSET("img/file_empty.png"))
-file_empty_hidden_icon = Image.open(ASSET("img/file_empty_hidden.png"))
 
-file_image_icon = Image.open(ASSET("img/file_image.png"))
-file_music_icon = Image.open(ASSET("img/file_music.png"))
-file_font_icon = Image.open(ASSET("img/file_font.png"))
+font = ImageFont.truetype(asset_path("Roboto-Regular.ttf"), 24)
+right_triangle = Image.open(asset_path("img/right_triangle.png"))
+down_triangle = Image.open(asset_path("img/down_triangle.png"))
+
+folder_icon = Image.open(asset_path("img/folder.png"))
+folder_hidden_icon = Image.open(asset_path("img/folder_hidden.png"))
+file_icon = Image.open(asset_path("img/file.png"))
+file_hidden_icon = Image.open(asset_path("img/file_hidden.png"))
+file_empty_icon = Image.open(asset_path("img/file_empty.png"))
+file_empty_hidden_icon = Image.open(asset_path("img/file_empty_hidden.png"))
+
+file_image_icon = Image.open(asset_path("img/file_image.png"))
+file_music_icon = Image.open(asset_path("img/file_music.png"))
+file_font_icon = Image.open(asset_path("img/file_font.png"))
 
 FILE_TYPE_ICON_MAP = {
     "py": file_icon,
@@ -291,7 +294,6 @@ def generate_requirement_image(
 
     final_list_to_render = sort_libraries(libs)
 
-
     if "code.py" in project_files:
         project_files.remove("code.py")
 
@@ -320,45 +322,57 @@ def generate_requirement_image(
         (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
     )
 
-    img.save(
-        "generated_images/{}.png".format(image_name)
-    )
+    img.save("generated_images/{}.png".format(image_name))
 
-def generate_learn_requirement_image(
+
+def generate_learn_requirement_image(  # pylint: disable=invalid-name
     learn_guide_project,
 ):
+    """Generate an image for a single learn project"""
     image_name = learn_guide_project.replace("/", "_")
     libs = get_libs_for_project(learn_guide_project)
     project_files = get_files_for_project(learn_guide_project)
     generate_requirement_image(project_files, libs, image_name)
 
-def generate_example_requirement_image(
-    example_path
-):
-    image_name = "_".join(element for element in example_path.split('/')
-            if element not in ('libraries', 'drivers', 'helpers', 'examples'))
+
+def generate_example_requirement_image(example_path):  # pylint: disable=invalid-name
+    """Generate an image for a library example"""
+    image_name = "_".join(
+        element
+        for element in example_path.split("/")
+        if element not in ("libraries", "drivers", "helpers", "examples")
+    )
     libs = get_libs_for_example(example_path)
     project_files = get_files_for_example(example_path)
     generate_requirement_image(project_files, libs, image_name)
 
+
 @click.group(invoke_without_command=True)
 @click.pass_context
 def cli(ctx):
+    """Main entry point; invokes the learn subcommand if nothing is specified"""
     if ctx.invoked_subcommand is None:
         learn()
 
+
 @cli.command()
 def learn():
-    with Pool() as p:
-        for _ in p.imap(generate_learn_requirement_image, get_learn_guide_cp_projects()):
+    """Generate images for a learn-style repo"""
+    with Pool() as pool:
+        for _ in pool.imap(
+            generate_learn_requirement_image, get_learn_guide_cp_projects()
+        ):
             pass
+
 
 @cli.command()
-@click.argument('paths', nargs=-1)
+@click.argument("paths", nargs=-1)
 def bundle(paths):
-    with Pool() as p:
-        for _ in p.imap(generate_example_requirement_image, paths):
+    """Generate images for a bundle-style repo"""
+    with Pool() as pool:
+        for _ in pool.imap(generate_example_requirement_image, paths):
             pass
 
+
 if __name__ == "__main__":
-    cli()
+    cli()  # pylint: disable=no-value-for-parameter
