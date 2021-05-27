@@ -43,9 +43,9 @@ bundle_data = json.load(f)
 f.close()
 
 
-def asset_path(x):
+def asset_path(asset_name):
     """Return the location of a file shipped with the screenshot maker"""
-    return os.path.join(os.path.dirname(__file__), x)
+    return os.path.join(os.path.dirname(__file__), asset_name)
 
 
 font = ImageFont.truetype(asset_path("Roboto-Regular.ttf"), 24)
