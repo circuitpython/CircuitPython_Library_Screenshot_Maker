@@ -1,3 +1,4 @@
 findimports
 pillow
 requests
+click

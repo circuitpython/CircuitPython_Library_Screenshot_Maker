@@ -11,13 +11,15 @@ Create requirement screenshots for learn guide projects
 from multiprocessing import Pool
 import json
 import os
-import traceback
 
+import click
 from PIL import Image, ImageDraw, ImageFont
 
 from get_imports import (
     get_libs_for_project,
     get_files_for_project,
+    get_libs_for_example,
+    get_files_for_example,
     get_learn_guide_cp_projects,
 )
 
@@ -40,20 +42,26 @@ f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
 f.close()
 
-font = ImageFont.truetype("Roboto-Regular.ttf", 24)
-right_triangle = Image.open("img/right_triangle.png")
-down_triangle = Image.open("img/down_triangle.png")
 
-folder_icon = Image.open("img/folder.png")
-folder_hidden_icon = Image.open("img/folder_hidden.png")
-file_icon = Image.open("img/file.png")
-file_hidden_icon = Image.open("img/file_hidden.png")
-file_empty_icon = Image.open("img/file_empty.png")
-file_empty_hidden_icon = Image.open("img/file_empty_hidden.png")
+def asset_path(asset_name):
+    """Return the location of a file shipped with the screenshot maker"""
+    return os.path.join(os.path.dirname(__file__), asset_name)
 
-file_image_icon = Image.open("img/file_image.png")
-file_music_icon = Image.open("img/file_music.png")
-file_font_icon = Image.open("img/file_font.png")
+
+font = ImageFont.truetype(asset_path("Roboto-Regular.ttf"), 24)
+right_triangle = Image.open(asset_path("img/right_triangle.png"))
+down_triangle = Image.open(asset_path("img/down_triangle.png"))
+
+folder_icon = Image.open(asset_path("img/folder.png"))
+folder_hidden_icon = Image.open(asset_path("img/folder_hidden.png"))
+file_icon = Image.open(asset_path("img/file.png"))
+file_hidden_icon = Image.open(asset_path("img/file_hidden.png"))
+file_empty_icon = Image.open(asset_path("img/file_empty.png"))
+file_empty_hidden_icon = Image.open(asset_path("img/file_empty_hidden.png"))
+
+file_image_icon = Image.open(asset_path("img/file_image.png"))
+file_music_icon = Image.open(asset_path("img/file_music.png"))
+file_font_icon = Image.open(asset_path("img/file_font.png"))
 
 FILE_TYPE_ICON_MAP = {
     "py": file_icon,
@@ -73,7 +81,7 @@ for file_icon in FILE_TYPE_ICON_MAP.values():
 
 
 def generate_requirement_image(
-    learn_guide_project,
+    project_files, libs, image_name
 ):  # pylint: disable=too-many-statements
     """Generate a single requirement image"""
 
@@ -149,7 +157,7 @@ def generate_requirement_image(
                 font=font,
             )
 
-    def make_header(position, learn_guide_project):
+    def make_header(position, project_files):
         # Static files
         make_line("CIRCUITPY", position)
         make_line(
@@ -181,7 +189,6 @@ def generate_requirement_image(
         )
 
         # dynamic files from project dir in learn guide repo
-        project_files = get_files_for_project(learn_guide_project)
         rows_added = 0
         project_files_to_draw = []
         project_folders_to_draw = []
@@ -189,15 +196,9 @@ def generate_requirement_image(
             if "." in cur_file[-5:]:
                 cur_extension = cur_file.split(".")[-1]
                 if cur_extension in SHOWN_FILETYPES:
-                    if cur_file != "main.py":
-                        project_files_to_draw.append(cur_file)
+                    project_files_to_draw.append(cur_file)
             else:
                 project_folders_to_draw.append(cur_file)
-
-        try:
-            project_files_to_draw.remove("code.py")
-        except ValueError:
-            pass
 
         for i, file in enumerate(sorted(project_files_to_draw)):
             cur_file_extension = file.split(".")[-1]
@@ -291,50 +292,87 @@ def generate_requirement_image(
                 triangle_icon=triangle_icon,
             )
 
-    try:
-        libs = get_libs_for_project(learn_guide_project)
-        final_list_to_render = sort_libraries(libs)
+    final_list_to_render = sort_libraries(libs)
 
-        project_file_list = get_files_for_project(learn_guide_project)
+    if "code.py" in project_files:
+        project_files.remove("code.py")
 
-        project_files_count = len(project_file_list)
+    if "main.py" in project_files:
+        project_files.remove("main.py")
 
-        if "code.py" in project_file_list:
-            project_files_count -= 1
+    project_files_count = len(project_files)
 
-        if "main.py" in project_file_list:
-            project_files_count -= 1
+    image_height = (
+        PADDING * 2
+        + 7 * LINE_SPACING
+        + len(final_list_to_render) * LINE_SPACING
+        + (project_files_count) * LINE_SPACING
+    )
+    img = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
+    draw = ImageDraw.Draw(img)
 
-        image_height = (
-            PADDING * 2
-            + 7 * LINE_SPACING
-            + len(final_list_to_render) * LINE_SPACING
-            + (project_files_count) * LINE_SPACING
-        )
-        img = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
-        draw = ImageDraw.Draw(img)
+    make_background_highlights(
+        7 + len(final_list_to_render) + project_files_count,
+        offset=(PADDING, PADDING),
+    )
 
-        make_background_highlights(
-            7 + len(final_list_to_render) + project_files_count,
-            offset=(PADDING, PADDING),
-        )
+    make_header((PADDING, PADDING), project_files)
+    make_libraries(
+        final_list_to_render,
+        (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
+    )
 
-        make_header((PADDING, PADDING), learn_guide_project)
-        make_libraries(
-            final_list_to_render,
-            (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
-        )
+    img.save("generated_images/{}.png".format(image_name))
 
-        img.save(
-            "generated_images/{}.png".format(learn_guide_project.replace("/", "_"))
-        )
-    except SyntaxError as exc:
-        print(exc)
-        traceback.print_exc()
-        print("SyntaxError finding imports for {}".format(learn_guide_project))
+
+def generate_learn_requirement_image(  # pylint: disable=invalid-name
+    learn_guide_project,
+):
+    """Generate an image for a single learn project"""
+    image_name = learn_guide_project.replace("/", "_")
+    libs = get_libs_for_project(learn_guide_project)
+    project_files = get_files_for_project(learn_guide_project)
+    generate_requirement_image(project_files, libs, image_name)
+
+
+def generate_example_requirement_image(example_path):  # pylint: disable=invalid-name
+    """Generate an image for a library example"""
+    image_name = "_".join(
+        element
+        for element in example_path.split("/")
+        if element not in ("libraries", "drivers", "helpers", "examples")
+    )
+    libs = get_libs_for_example(example_path)
+    project_files = get_files_for_example(example_path)
+    generate_requirement_image(project_files, libs, image_name)
+
+
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
+    """Main entry point; invokes the learn subcommand if nothing is specified"""
+    if ctx.invoked_subcommand is None:
+        learn()
+
+
+@cli.command()
+def learn():
+    """Generate images for a learn-style repo"""
+    with Pool() as pool:
+        for _ in pool.imap(
+            generate_learn_requirement_image, get_learn_guide_cp_projects()
+        ):
+            pass
+
+
+@cli.command()
+@click.argument("paths", nargs=-1)
+def bundle(paths):
+    """Generate images for a bundle-style repo"""
+    with Pool() as pool:
+        for _ in pool.imap(generate_example_requirement_image, paths):
+            pass
 
 
 if __name__ == "__main__":
-    with Pool() as p:
-        for _ in p.imap(generate_requirement_image, get_learn_guide_cp_projects()):
-            pass
+    cli()  # pylint: disable=no-value-for-parameter
