@@ -182,14 +182,14 @@ def get_learn_guide_cp_projects():
             continue
 
         # Skip this folder and all subfolders
-        if ".circuitpython.skip" in filenames:
+        if ".circuitpython.skip-screenshot" in filenames:
             del dirnames[:]
             continue
         # Skip files in this folder, but handle sub-folders
-        if ".circuitpython.skip-here" in filenames:
+        if ".circuitpython.skip-screenshot-here" in filenames:
             continue
         # Do not reurse, but handle files in this folder
-        if ".circuitpython.skip-sub" in filenames:
+        if ".circuitpython.skip-screenshot-sub" in filenames:
             del dirnames[:]
 
         if any(f for f in filenames if f.endswith(".py")):
