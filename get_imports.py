@@ -19,7 +19,7 @@ LEARN_GUIDE_REPO = os.environ.get(
     "LEARN_GUIDE_REPO", "../Adafruit_Learning_System_Guides/"
 )
 
-SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "mid", "json", "txt"]
 SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
 

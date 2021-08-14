@@ -36,7 +36,7 @@ ROW_COLOR = "#383838"
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
-SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "mid", "json", "txt"]
 
 f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
@@ -70,6 +70,7 @@ FILE_TYPE_ICON_MAP = {
     "bmp": file_image_icon,
     "wav": file_music_icon,
     "mp3": file_music_icon,
+    "mid": file_music_icon,
     "pcf": file_font_icon,
     "bdf": file_font_icon,
     "json": file_icon,
