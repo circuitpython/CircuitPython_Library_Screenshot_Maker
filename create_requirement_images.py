@@ -159,32 +159,32 @@ def generate_requirement_image(
 
     def make_header(position, project_files):
         # Static files
-        make_line("CIRCUITPY", position)
+        make_line("CIRCUITPY", (position[0] + INDENT_SIZE, position[1]), triangle_icon=down_triangle)
         make_line(
             ".fseventsd",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 1)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 1)),
             hidden=True,
             triangle_icon=right_triangle,
         )
         make_line(
             ".metadata_never_index",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 2)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 2)),
             icon=file_empty_hidden_icon,
             hidden=True,
         )
         make_line(
             ".Trashes",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 3)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 3)),
             icon=file_empty_hidden_icon,
             hidden=True,
         )
         make_line(
             "boot_out.txt",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 4)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 4)),
         )
         make_line(
             "code.py",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 5)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 5)),
             icon=file_icon,
         )
 
@@ -206,7 +206,7 @@ def generate_requirement_image(
             cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, file_empty_icon)
             make_line(
                 file,
-                (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i))),
+                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * (6 + i))),
                 icon=cur_file_icon,
             )
             rows_added += 1
@@ -215,7 +215,7 @@ def generate_requirement_image(
             make_line(
                 file,
                 (
-                    position[0] + INDENT_SIZE,
+                    position[0] + INDENT_SIZE * 2,
                     position[1] + (LINE_SPACING * (6 + i + len(project_files_to_draw))),
                 ),
                 triangle_icon=right_triangle,
@@ -225,7 +225,7 @@ def generate_requirement_image(
         make_line(
             "lib",
             (
-                position[0] + INDENT_SIZE,
+                position[0] + INDENT_SIZE * 2,
                 position[1] + (LINE_SPACING * (5 + rows_added + 1)),
             ),
             triangle_icon=down_triangle,
@@ -288,7 +288,7 @@ def generate_requirement_image(
                 triangle_icon = right_triangle
             make_line(
                 lib_name,
-                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * i)),
+                (position[0] + INDENT_SIZE * 3, position[1] + (LINE_SPACING * i)),
                 triangle_icon=triangle_icon,
             )
 
