@@ -226,10 +226,6 @@ def generate_requirement_image(
                 triangle_icon=down_triangle,
             )
             rows_added += 1
-            if file == "midi":
-                #print(project_folders_to_draw)
-                pass
-            extra_sub_file_space = 0
             for j, sub_file in enumerate(sorted(project_folders_to_draw[file])):
                 extra_rows += 1
                 cur_file_extension = sub_file.split(".")[-1]
@@ -249,7 +245,6 @@ def generate_requirement_image(
                     icon=cur_file_icon
                 )
                 rows_added += 1
-            extra_sub_file_space = extra_rows
 
         make_line(
             "lib",

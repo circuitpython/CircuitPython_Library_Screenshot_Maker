@@ -111,12 +111,9 @@ def get_files_for_project(project_name):
     """Get the set of files for a learn project"""
     found_files = set()
     project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project_name)
-    # root level
-    full_tree = os.walk(project_dir)
 
+    full_tree = os.walk(project_dir)
     root_level = next(full_tree)
-    if project_name == "NeoTrellis_M4_MIDI_Synth":
-        print(root_level)
 
     for file in root_level[2]:
         if "." in file:
@@ -126,19 +123,9 @@ def get_files_for_project(project_name):
                 found_files.add(file)
 
     for _dir in root_level[1]:
-        if project_name == "NeoTrellis_M4_MIDI_Synth":
-            print(_dir)
-        # TODO: second item needs to be a tuple
         dir_tuple = (_dir, tuple())
         for cur_tuple in os.walk(project_dir):
-            if project_name == "NeoTrellis_M4_MIDI_Synth":
-                print(cur_tuple)
-                #print("{} - {}".format(cur_tuple[0].split("/")[-1], _dir))
-                #print(cur_tuple)
             if cur_tuple[0].split("/")[-1] == _dir:
-                # TODO: can't use add or append to add to a tuple
-                # TODO: need to use + to make new tuple or * unpacking
-                # https://stackoverflow.com/questions/16730339/python-add-item-to-the-tuple
                 for _sub_dir in cur_tuple[1]:
                     dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
                 for _sub_file in cur_tuple[2]:
