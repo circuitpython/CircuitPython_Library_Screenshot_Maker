@@ -86,7 +86,6 @@ def generate_requirement_image(
 ):  # pylint: disable=too-many-statements
     """Generate a single requirement image"""
 
-
     def make_line(
         requirement_name, position=(0, 0), icon=None, hidden=False, triangle_icon=None
     ):  # pylint: disable=too-many-branches
@@ -161,7 +160,11 @@ def generate_requirement_image(
 
     def make_header(position, project_files):
         # Static files
-        make_line("CIRCUITPY", (position[0] + INDENT_SIZE, position[1]), triangle_icon=down_triangle)
+        make_line(
+            "CIRCUITPY",
+            (position[0] + INDENT_SIZE, position[1]),
+            triangle_icon=down_triangle,
+        )
         make_line(
             ".fseventsd",
             (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 1)),
@@ -195,13 +198,14 @@ def generate_requirement_image(
         project_files_to_draw = []
         project_folders_to_draw = {}
         for cur_file in project_files:
-            if type(cur_file) == str:
+            # string for individual file
+            if isinstance(cur_file, str):
                 if "." in cur_file[-5:]:
                     cur_extension = cur_file.split(".")[-1]
                     if cur_extension in SHOWN_FILETYPES:
                         project_files_to_draw.append(cur_file)
-
-            elif type(cur_file) == tuple:
+            # tuple for directory
+            elif isinstance(cur_file, tuple):
                 project_folders_to_draw[cur_file[0]] = cur_file[1]
 
         for i, file in enumerate(sorted(project_files_to_draw)):
@@ -221,12 +225,15 @@ def generate_requirement_image(
                 file,
                 (
                     position[0] + INDENT_SIZE * 2,
-                    position[1] + (LINE_SPACING * (6 + i + len(project_files_to_draw) + extra_rows)),
+                    position[1]
+                    + (
+                        LINE_SPACING * (6 + i + len(project_files_to_draw) + extra_rows)
+                    ),
                 ),
                 triangle_icon=down_triangle,
             )
             rows_added += 1
-            for j, sub_file in enumerate(sorted(project_folders_to_draw[file])):
+            for sub_file in sorted(project_folders_to_draw[file]):
                 extra_rows += 1
                 cur_file_extension = sub_file.split(".")[-1]
                 cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, folder_icon)
@@ -236,13 +243,11 @@ def generate_requirement_image(
                 make_line(
                     sub_file,
                     (
-                        position[0] + INDENT_SIZE *3,
-                        #position[1] + (LINE_SPACING * (6 + i + j + 1 + extra_sub_file_space
-                        #                               + len(project_files_to_draw))),
+                        position[0] + INDENT_SIZE * 3,
                         position[1] + (LINE_SPACING * (6 + rows_added)),
                     ),
                     triangle_icon=triangle_icon,
-                    icon=cur_file_icon
+                    icon=cur_file_icon,
                 )
                 rows_added += 1
 
@@ -307,9 +312,12 @@ def generate_requirement_image(
     def count_files(files_list):
         _count = 0
         for _file in files_list:
-            if type(_file) == str:
+            # string for individual file
+            if isinstance(_file, str):
                 _count += 1
-            elif type(_file) == tuple:
+
+            # tuple for directory
+            elif isinstance(_file, tuple):
                 _count += 1
                 _count += len(_file[1])
         return _count
