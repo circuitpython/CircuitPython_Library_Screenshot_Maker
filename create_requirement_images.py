@@ -36,7 +36,7 @@ ROW_COLOR = "#383838"
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
-SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "mid", "json", "txt"]
 
 f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
@@ -70,6 +70,7 @@ FILE_TYPE_ICON_MAP = {
     "bmp": file_image_icon,
     "wav": file_music_icon,
     "mp3": file_music_icon,
+    "mid": file_music_icon,
     "pcf": file_font_icon,
     "bdf": file_font_icon,
     "json": file_icon,
@@ -159,46 +160,53 @@ def generate_requirement_image(
 
     def make_header(position, project_files):
         # Static files
-        make_line("CIRCUITPY", position)
+        make_line(
+            "CIRCUITPY",
+            (position[0] + INDENT_SIZE, position[1]),
+            triangle_icon=down_triangle,
+        )
         make_line(
             ".fseventsd",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 1)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 1)),
             hidden=True,
             triangle_icon=right_triangle,
         )
         make_line(
             ".metadata_never_index",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 2)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 2)),
             icon=file_empty_hidden_icon,
             hidden=True,
         )
         make_line(
             ".Trashes",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 3)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 3)),
             icon=file_empty_hidden_icon,
             hidden=True,
         )
         make_line(
             "boot_out.txt",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 4)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 4)),
         )
         make_line(
             "code.py",
-            (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * 5)),
+            (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 5)),
             icon=file_icon,
         )
 
         # dynamic files from project dir in learn guide repo
         rows_added = 0
         project_files_to_draw = []
-        project_folders_to_draw = []
+        project_folders_to_draw = {}
         for cur_file in project_files:
-            if "." in cur_file[-5:]:
-                cur_extension = cur_file.split(".")[-1]
-                if cur_extension in SHOWN_FILETYPES:
-                    project_files_to_draw.append(cur_file)
-            else:
-                project_folders_to_draw.append(cur_file)
+            # string for individual file
+            if isinstance(cur_file, str):
+                if "." in cur_file[-5:]:
+                    cur_extension = cur_file.split(".")[-1]
+                    if cur_extension in SHOWN_FILETYPES:
+                        project_files_to_draw.append(cur_file)
+            # tuple for directory
+            elif isinstance(cur_file, tuple):
+                project_folders_to_draw[cur_file[0]] = cur_file[1]
 
         for i, file in enumerate(sorted(project_files_to_draw)):
             cur_file_extension = file.split(".")[-1]
@@ -206,26 +214,47 @@ def generate_requirement_image(
             cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, file_empty_icon)
             make_line(
                 file,
-                (position[0] + INDENT_SIZE, position[1] + (LINE_SPACING * (6 + i))),
+                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * (6 + i))),
                 icon=cur_file_icon,
             )
             rows_added += 1
 
-        for i, file in enumerate(sorted(project_folders_to_draw)):
+        extra_rows = 0
+        for i, file in enumerate(sorted(project_folders_to_draw.keys())):
             make_line(
                 file,
                 (
-                    position[0] + INDENT_SIZE,
-                    position[1] + (LINE_SPACING * (6 + i + len(project_files_to_draw))),
+                    position[0] + INDENT_SIZE * 2,
+                    position[1]
+                    + (
+                        LINE_SPACING * (6 + i + len(project_files_to_draw) + extra_rows)
+                    ),
                 ),
-                triangle_icon=right_triangle,
+                triangle_icon=down_triangle,
             )
             rows_added += 1
+            for sub_file in sorted(project_folders_to_draw[file]):
+                extra_rows += 1
+                cur_file_extension = sub_file.split(".")[-1]
+                cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, folder_icon)
+                triangle_icon = None
+                if cur_file_icon == folder_icon:
+                    triangle_icon = right_triangle
+                make_line(
+                    sub_file,
+                    (
+                        position[0] + INDENT_SIZE * 3,
+                        position[1] + (LINE_SPACING * (6 + rows_added)),
+                    ),
+                    triangle_icon=triangle_icon,
+                    icon=cur_file_icon,
+                )
+                rows_added += 1
 
         make_line(
             "lib",
             (
-                position[0] + INDENT_SIZE,
+                position[0] + INDENT_SIZE * 2,
                 position[1] + (LINE_SPACING * (5 + rows_added + 1)),
             ),
             triangle_icon=down_triangle,
@@ -280,6 +309,19 @@ def generate_requirement_image(
         package_list, file_list = get_dependencies(libraries)
         return sorted(package_list) + sorted(file_list)
 
+    def count_files(files_list):
+        _count = 0
+        for _file in files_list:
+            # string for individual file
+            if isinstance(_file, str):
+                _count += 1
+
+            # tuple for directory
+            elif isinstance(_file, tuple):
+                _count += 1
+                _count += len(_file[1])
+        return _count
+
     def make_libraries(libraries, position):
 
         for i, lib_name in enumerate(libraries):
@@ -288,7 +330,7 @@ def generate_requirement_image(
                 triangle_icon = right_triangle
             make_line(
                 lib_name,
-                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * i)),
+                (position[0] + INDENT_SIZE * 3, position[1] + (LINE_SPACING * i)),
                 triangle_icon=triangle_icon,
             )
 
@@ -300,7 +342,7 @@ def generate_requirement_image(
     if "main.py" in project_files:
         project_files.remove("main.py")
 
-    project_files_count = len(project_files)
+    project_files_count = count_files(project_files)
 
     image_height = (
         PADDING * 2

@@ -19,7 +19,7 @@ LEARN_GUIDE_REPO = os.environ.get(
     "LEARN_GUIDE_REPO", "../Adafruit_Learning_System_Guides/"
 )
 
-SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "json", "txt"]
+SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "mid", "json", "txt"]
 SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
 
@@ -111,15 +111,28 @@ def get_files_for_project(project_name):
     """Get the set of files for a learn project"""
     found_files = set()
     project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project_name)
-    for file in os.listdir(project_dir):
+
+    full_tree = os.walk(project_dir)
+    root_level = next(full_tree)
+
+    for file in root_level[2]:
         if "." in file:
             cur_extension = file.split(".")[-1]
             if cur_extension in SHOWN_FILETYPES:
                 # print(file)
                 found_files.add(file)
-        else:
-            # add dir
-            found_files.add(file)
+
+    for _dir in root_level[1]:
+        dir_tuple = (_dir, tuple())
+        for cur_tuple in os.walk(project_dir):
+            if cur_tuple[0].split("/")[-1] == _dir:
+                for _sub_dir in cur_tuple[1]:
+                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
+                for _sub_file in cur_tuple[2]:
+                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
+
+        # e.g. ("dir_name", ("file_1.txt", "file_2.txt"))
+        found_files.add(dir_tuple)
     return found_files
 
 
