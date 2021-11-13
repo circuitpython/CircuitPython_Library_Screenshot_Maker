@@ -74,6 +74,7 @@ FILE_TYPE_ICON_MAP = {
     "pcf": file_font_icon,
     "bdf": file_font_icon,
     "json": file_icon,
+    "license": file_empty_icon,
 }
 
 # If this is not done, the images fail to load in the subprocesses.

@@ -158,15 +158,30 @@ def get_files_for_example(example_path):
     """Get the set of files for a library example"""
     found_files = set(("code.py",))
     example_dir = os.path.dirname(example_path)
-    for file in os.listdir(example_dir):
+
+    full_tree = os.walk(example_dir)
+    root_level = next(full_tree)
+
+    for file in root_level[2]:
         if "." in file:
             cur_extension = file.split(".")[-1]
             if cur_extension in SHOWN_FILETYPES_EXAMPLE:
                 # print(file)
                 found_files.add(file)
-        else:
-            # add dir
-            found_files.add(file)
+
+    for _dir in root_level[1]:
+        dir_tuple = (_dir, tuple())
+        for cur_tuple in os.walk(example_dir):
+            if cur_tuple[0].split("/")[-1] == _dir:
+                for _sub_dir in cur_tuple[1]:
+                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
+                for _sub_file in cur_tuple[2]:
+                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
+
+        # e.g. ("dir_name", ("file_1.txt", "file_2.txt"))
+
+        if ".circuitpython.skip-screenshot" not in dir_tuple[1]:
+            found_files.add(dir_tuple)
     return found_files
 
 
@@ -201,7 +216,7 @@ def get_learn_guide_cp_projects():
         # Skip files in this folder, but handle sub-folders
         if ".circuitpython.skip-screenshot-here" in filenames:
             continue
-        # Do not reurse, but handle files in this folder
+        # Do not recurse, but handle files in this folder
         if ".circuitpython.skip-screenshot-sub" in filenames:
             del dirnames[:]
 
