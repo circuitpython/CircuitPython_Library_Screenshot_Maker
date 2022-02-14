@@ -206,7 +206,8 @@ def generate_requirement_image(
                         project_files_to_draw.append(cur_file)
             # tuple for directory
             elif isinstance(cur_file, tuple):
-                project_folders_to_draw[cur_file[0]] = cur_file[1]
+                if ".circuitpython.skip-screenshot" not in cur_file[1]:
+                    project_folders_to_draw[cur_file[0]] = cur_file[1]
 
         for i, file in enumerate(sorted(project_files_to_draw)):
             cur_file_extension = file.split(".")[-1]
@@ -318,8 +319,9 @@ def generate_requirement_image(
 
             # tuple for directory
             elif isinstance(_file, tuple):
-                _count += 1
-                _count += len(_file[1])
+                if ".circuitpython.skip-screenshot" not in _file[1]:
+                    _count += 1
+                    _count += len(_file[1])
         return _count
 
     def make_libraries(libraries, position):
