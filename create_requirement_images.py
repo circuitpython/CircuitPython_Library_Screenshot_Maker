@@ -203,9 +203,6 @@ def generate_requirement_image(
             if isinstance(cur_file, str):
                 if "." in cur_file[-5:]:
                     cur_extension = cur_file.split(".")[-1]
-                    if cur_extension == "csv":
-                        print("Found CSV:")
-                        print(cur_file)
                     if cur_extension in SHOWN_FILETYPES:
                         project_files_to_draw.append(cur_file)
             # tuple for directory
