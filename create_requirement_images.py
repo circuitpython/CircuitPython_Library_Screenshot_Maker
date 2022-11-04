@@ -14,6 +14,7 @@ import os
 
 import click
 from PIL import Image, ImageDraw, ImageFont
+from get_imports import SHOWN_FILETYPES
 
 from get_imports import (
     get_libs_for_project,
@@ -35,8 +36,6 @@ ROW_COLOR = "#383838"
 
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
-
-SHOWN_FILETYPES = ["py", "mpy", "bmp", "pcf", "bdf", "wav", "mp3", "mid", "json", "txt"]
 
 f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
@@ -73,6 +72,7 @@ FILE_TYPE_ICON_MAP = {
     "mid": file_music_icon,
     "pcf": file_font_icon,
     "bdf": file_font_icon,
+    "csv": file_empty_icon,
     "json": file_icon,
     "license": file_empty_icon,
 }
