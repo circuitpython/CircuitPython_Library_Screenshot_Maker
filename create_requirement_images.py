@@ -23,6 +23,7 @@ from get_imports import (
     get_files_for_example,
     get_learn_guide_cp_projects,
 )
+from settings_required import settings_required
 
 os.makedirs("generated_images", exist_ok=True)
 
@@ -66,6 +67,7 @@ FILE_TYPE_ICON_MAP = {
     "py": file_icon,
     "mpy": file_icon,
     "txt": file_empty_icon,
+    "toml": file_icon,
     "bmp": file_image_icon,
     "wav": file_music_icon,
     "mp3": file_music_icon,
@@ -78,14 +80,16 @@ FILE_TYPE_ICON_MAP = {
 }
 
 # If this is not done, the images fail to load in the subprocesses.
-for file_icon in FILE_TYPE_ICON_MAP.values():
-    file_icon.load()
+for _file_icon in FILE_TYPE_ICON_MAP.values():
+    _file_icon.load()
 
 
 def generate_requirement_image(
     project_files, libs, image_name
-):  # pylint: disable=too-many-statements
+):  # pylint: disable=too-many-statements, too-many-locals
     """Generate a single requirement image"""
+
+    context = {"added_settings_toml": False}
 
     def make_line(
         requirement_name, position=(0, 0), icon=None, hidden=False, triangle_icon=None
@@ -159,7 +163,8 @@ def generate_requirement_image(
                 font=font,
             )
 
-    def make_header(position, project_files):
+    def make_header(position, project_files, files_and_libs):
+        # pylint: disable=too-many-locals
         # Static files
         make_line(
             "CIRCUITPY",
@@ -194,6 +199,21 @@ def generate_requirement_image(
             icon=file_icon,
         )
 
+        # TODO: Add settings.toml if it's needed
+
+        if settings_required(files_and_libs):
+            make_line(
+                "settings.toml",
+                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * 6)),
+                icon=file_icon,
+            )
+            context["added_settings_toml"] = True
+
+            if project_files:
+                print(image_name)
+                print(project_files)
+                print("=============")
+
         # dynamic files from project dir in learn guide repo
         rows_added = 0
         project_files_to_draw = []
@@ -210,13 +230,18 @@ def generate_requirement_image(
                 if ".circuitpython.skip-screenshot" not in cur_file[1]:
                     project_folders_to_draw[cur_file[0]] = cur_file[1]
 
+        begin_y_offset = 7 if context["added_settings_toml"] else 6
         for i, file in enumerate(sorted(project_files_to_draw)):
             cur_file_extension = file.split(".")[-1]
 
             cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, file_empty_icon)
+
             make_line(
                 file,
-                (position[0] + INDENT_SIZE * 2, position[1] + (LINE_SPACING * (6 + i))),
+                (
+                    position[0] + INDENT_SIZE * 2,
+                    position[1] + (LINE_SPACING * (begin_y_offset + i)),
+                ),
                 icon=cur_file_icon,
             )
             rows_added += 1
@@ -229,7 +254,8 @@ def generate_requirement_image(
                     position[0] + INDENT_SIZE * 2,
                     position[1]
                     + (
-                        LINE_SPACING * (6 + i + len(project_files_to_draw) + extra_rows)
+                        LINE_SPACING
+                        * (begin_y_offset + i + len(project_files_to_draw) + extra_rows)
                     ),
                 ),
                 triangle_icon=down_triangle,
@@ -246,7 +272,7 @@ def generate_requirement_image(
                     sub_file,
                     (
                         position[0] + INDENT_SIZE * 3,
-                        position[1] + (LINE_SPACING * (6 + rows_added)),
+                        position[1] + (LINE_SPACING * (begin_y_offset + rows_added)),
                     ),
                     triangle_icon=triangle_icon,
                     icon=cur_file_icon,
@@ -257,7 +283,7 @@ def generate_requirement_image(
             "lib",
             (
                 position[0] + INDENT_SIZE * 2,
-                position[1] + (LINE_SPACING * (5 + rows_added + 1)),
+                position[1] + (LINE_SPACING * ((begin_y_offset - 1) + rows_added + 1)),
             ),
             triangle_icon=down_triangle,
         )
@@ -333,11 +359,20 @@ def generate_requirement_image(
                 triangle_icon = right_triangle
             make_line(
                 lib_name,
-                (position[0] + INDENT_SIZE * 3, position[1] + (LINE_SPACING * i)),
+                (
+                    position[0] + INDENT_SIZE * 3,
+                    position[1]
+                    + (
+                        LINE_SPACING
+                        * (i + (1 if context["added_settings_toml"] else 0))
+                    ),
+                ),
                 triangle_icon=triangle_icon,
             )
 
     final_list_to_render = sort_libraries(libs)
+    if settings_required(final_list_to_render):
+        context["added_settings_toml"] = True
 
     if "code.py" in project_files:
         project_files.remove("code.py")
@@ -352,16 +387,20 @@ def generate_requirement_image(
         + 7 * LINE_SPACING
         + len(final_list_to_render) * LINE_SPACING
         + (project_files_count) * LINE_SPACING
+        + (1 if context["added_settings_toml"] else 0) * LINE_SPACING
     )
     img = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
     draw = ImageDraw.Draw(img)
 
     make_background_highlights(
-        7 + len(final_list_to_render) + project_files_count,
+        7
+        + len(final_list_to_render)
+        + project_files_count
+        + (1 if context["added_settings_toml"] else 0),
         offset=(PADDING, PADDING),
     )
-
-    make_header((PADDING, PADDING), project_files)
+    print(f"fltr: {final_list_to_render}")
+    make_header((PADDING, PADDING), project_files, final_list_to_render)
     make_libraries(
         final_list_to_render,
         (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
