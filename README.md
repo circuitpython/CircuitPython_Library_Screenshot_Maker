@@ -16,3 +16,11 @@ With that pointed at a learn guide repo you can run:
 python3 create_requirement_images.py
 ```
 It will create images in the `generated_images` directory.
+
+### Generate Single Learn Guide Image
+
+```shell
+python3 create_requirement_images.py --guide [Learn Guide Name]
+# OR
+python3 create_requirement_images.py -g [Learn Guide Name]
+```

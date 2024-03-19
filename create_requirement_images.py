@@ -370,6 +370,13 @@ def generate_requirement_image(
                 triangle_icon=triangle_icon,
             )
 
+    def make_sd_dir(position):
+        make_line(
+            "sd",
+            position,
+            triangle_icon=right_triangle,
+        )
+
     final_list_to_render = sort_libraries(libs)
     if settings_required(final_list_to_render):
         context["added_settings_toml"] = True
@@ -388,6 +395,7 @@ def generate_requirement_image(
         + len(final_list_to_render) * LINE_SPACING
         + (project_files_count) * LINE_SPACING
         + (1 if context["added_settings_toml"] else 0) * LINE_SPACING
+        + 1 * LINE_SPACING  # /sd/ dir
     )
     img = Image.new("RGB", (OUT_WIDTH, image_height), "#303030")
     draw = ImageDraw.Draw(img)
@@ -396,15 +404,23 @@ def generate_requirement_image(
         7
         + len(final_list_to_render)
         + project_files_count
-        + (1 if context["added_settings_toml"] else 0),
+        + (1 if context["added_settings_toml"] else 0)
+        + 1,  # for /sd/ dir
         offset=(PADDING, PADDING),
     )
     print(f"fltr: {final_list_to_render}")
     make_header((PADDING, PADDING), project_files, final_list_to_render)
-    make_libraries(
-        final_list_to_render,
-        (PADDING, PADDING + (LINE_SPACING * (7 + project_files_count))),
+    _libraries_position = (
+        PADDING,
+        PADDING + (LINE_SPACING * (7 + project_files_count)),
     )
+    make_libraries(final_list_to_render, _libraries_position)
+    _sd_dir_position = (
+        76,
+        PADDING
+        + (LINE_SPACING * (7 + project_files_count + len(final_list_to_render))),
+    )
+    make_sd_dir(_sd_dir_position)
 
     img.save("generated_images/{}.png".format(image_name))
 
@@ -440,13 +456,20 @@ def cli(ctx):
 
 
 @cli.command()
-def learn():
+@click.option(
+    "-g", "--guide", help="Guide Name of a single Learn Guide to generate an image for."
+)
+def learn(guide=None):
     """Generate images for a learn-style repo"""
-    with Pool() as pool:
-        for _ in pool.imap(
-            generate_learn_requirement_image, get_learn_guide_cp_projects()
-        ):
-            pass
+    if guide is None:
+        with Pool() as pool:
+            for _ in pool.imap(
+                generate_learn_requirement_image, get_learn_guide_cp_projects()
+            ):
+                pass
+    else:
+        print(f"generating image for single guide: {guide}")
+        generate_learn_requirement_image(guide)
 
 
 @cli.command()
