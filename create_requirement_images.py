@@ -415,6 +415,10 @@ def generate_requirement_image(
         PADDING + (LINE_SPACING * (7 + project_files_count)),
     )
     make_libraries(final_list_to_render, _libraries_position)
+
+    if project_files_count == 0:
+        project_files_count = 1
+
     _sd_dir_position = (
         76,
         PADDING

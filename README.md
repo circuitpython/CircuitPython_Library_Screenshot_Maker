@@ -20,7 +20,14 @@ It will create images in the `generated_images` directory.
 ### Generate Single Learn Guide Image
 
 ```shell
-python3 create_requirement_images.py --guide [Learn Guide Name]
+python3 create_requirement_images.py learn --guide [Learn Guide Name]
 # OR
-python3 create_requirement_images.py -g [Learn Guide Name]
+python3 create_requirement_images.py learn -g [Learn Guide Name]
+```
+
+### Help Command
+The help command will list all possible commands and arguments.
+
+```shell
+python3 create_requirement_images.py --help
 ```
