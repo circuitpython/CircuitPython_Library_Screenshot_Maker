@@ -316,9 +316,9 @@ def generate_requirement_image(
             lib_name = libraries_to_check[0]
             del libraries_to_check[0]
 
-            try:
+            if lib_name in bundle_data:
                 lib_obj = bundle_data[lib_name]
-            except KeyError:
+            else:
                 # Library isn't in bundle, so we don't know about its
                 # dependencies.
                 if "." in lib_name:
