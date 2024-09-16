@@ -317,7 +317,17 @@ def generate_requirement_image(
             lib_name = libraries_to_check[0]
             del libraries_to_check[0]
 
-            lib_obj = bundle_data[lib_name]
+            try:
+                lib_obj = bundle_data[lib_name]
+            except KeyError:
+                # Library isn't in bundle, so we don't know about its
+                # dependencies.
+                if "." in lib_name:
+                    file_list.add(lib_name)
+                else:
+                    package_list.add(lib_name)
+                continue
+
             for dep_name in lib_obj["dependencies"]:
                 libraries_to_check.append(dep_name)
                 dep_obj = bundle_data[dep_name]
@@ -377,6 +387,29 @@ def generate_requirement_image(
             triangle_icon=right_triangle,
         )
 
+    def filter_custom_project_libs(project_file_set):
+        """
+        Find and remove the custom project lib folder.
+        Returns a tuple with the contents of the custom project lib folder
+        which will in turn get included in the libraries list that the
+        tool uses to generate the "main" lib folder in the screenshot.
+        """
+        _custom_libs = None
+        remove_files = []
+        for file in project_file_set:
+            if not isinstance(file, tuple):
+                continue
+            if file[0] == "lib":
+                _custom_libs = file[1]
+                remove_files.append(file)
+        for file in remove_files:
+            project_file_set.remove(file)
+        return _custom_libs
+
+    custom_libs = filter_custom_project_libs(project_files)
+    libs_list = list(libs)
+    libs_list.extend(custom_libs)
+    libs = set(libs_list)
     final_list_to_render = sort_libraries(libs)
     if settings_required(final_list_to_render):
         context["added_settings_toml"] = True
