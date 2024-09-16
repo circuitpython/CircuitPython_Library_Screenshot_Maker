@@ -393,7 +393,7 @@ def generate_requirement_image(
         which will in turn get included in the libraries list that the
         tool uses to generate the "main" lib folder in the screenshot.
         """
-        _custom_libs = None
+        _custom_libs = tuple()
         remove_files = []
         for file in project_file_set:
             if not isinstance(file, tuple):

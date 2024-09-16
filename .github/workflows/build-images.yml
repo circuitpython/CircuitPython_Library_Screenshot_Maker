@@ -20,7 +20,7 @@ jobs:
         echo PATH=$PATH >> $GITHUB_ENV
     - run: python3 -mpip install -r requirements.txt
     - run: git clone --depth=1 https://github.com/adafruit/Adafruit_Learning_System_Guides learn
-    - run: env LEARN_GUIDE_REPO=learn/ python3 create_requirement_images.py learn
+    - run: env LEARN_GUIDE_REPO=learn/ python3 create_requirement_images.py
     - uses: actions/upload-artifact@v4
       with:
         name: images
