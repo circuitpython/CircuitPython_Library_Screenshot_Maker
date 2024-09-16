@@ -6,3 +6,15 @@ __pycache__
 latest_bundle_data.json
 latest_bundle_tag.json
 generated_images
+
+# Virtual environment-specific files
+.env
+.venv
+
+# MacOS-specific files
+*.DS_Store
+
+# IDE-specific files
+.idea
+.vscode
+*~

@@ -38,9 +38,8 @@ ROW_COLOR = "#383838"
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
-f = open("latest_bundle_data.json", "r")
-bundle_data = json.load(f)
-f.close()
+with open("latest_bundle_data.json", "r", encoding="utf-8") as f:
+    bundle_data = json.load(f)
 
 f = open("latest_community_bundle_data.json", "r")
 community_bundle_data = json.load(f)
@@ -432,14 +431,16 @@ def generate_requirement_image(
         PADDING + (LINE_SPACING * (7 + project_files_count)),
     )
     make_libraries(final_list_to_render, _libraries_position)
+
     _sd_dir_position = (
         76,
         PADDING
-        + (LINE_SPACING * (7 + project_files_count + len(final_list_to_render))),
+        + (LINE_SPACING * (7 + project_files_count + len(final_list_to_render)))
+        + (1 if context["added_settings_toml"] else 0) * LINE_SPACING,
     )
     make_sd_dir(_sd_dir_position)
 
-    img.save("generated_images/{}.png".format(image_name))
+    img.save(f"generated_images/{image_name}.png")
 
 
 def generate_learn_requirement_image(  # pylint: disable=invalid-name

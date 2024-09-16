@@ -120,7 +120,7 @@ ensure_latest_bundle("https://github.com/adafruit/CircuitPython_Community_Bundle
                      COMMUNITY_BUNDLE_S3_URL,
                      COMMUNITY_BUNDLE_TAG, COMMUNITY_BUNDLE_DATA)
 
-with open(ADAFRUIT_BUNDLE_DATA, "r") as f:
+with open(ADAFRUIT_BUNDLE_DATA, "r", encoding="utf-8") as f:
     bundle_data = json.load(f)
 
 with open(COMMUNITY_BUNDLE_DATA, "r") as f:
@@ -130,7 +130,7 @@ with open(COMMUNITY_BUNDLE_DATA, "r") as f:
 def get_files_for_project(project_name):
     """Get the set of files for a learn project"""
     found_files = set()
-    project_dir = "{}/{}/".format(LEARN_GUIDE_REPO, project_name)
+    project_dir = f"{LEARN_GUIDE_REPO}/{project_name}/"
 
     full_tree = os.walk(project_dir)
     root_level = next(full_tree)
@@ -160,11 +160,11 @@ def get_libs_for_project(project_name):
     """Get the set of libraries for a learn project"""
     found_libs = set()
     found_imports = []
-    project_dir = "{}{}/".format(LEARN_GUIDE_REPO, project_name)
+    project_dir = f"{LEARN_GUIDE_REPO}{project_name}/"
     for file in os.listdir(project_dir):
         if file.endswith(".py"):
 
-            found_imports = findimports.find_imports("{}{}".format(project_dir, file))
+            found_imports = findimports.find_imports(f"{project_dir}{file}")
 
             for cur_import in found_imports:
                 cur_lib = cur_import.name.split(".")[0]
