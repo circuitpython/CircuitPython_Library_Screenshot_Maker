@@ -42,6 +42,10 @@ f = open("latest_bundle_data.json", "r")
 bundle_data = json.load(f)
 f.close()
 
+f = open("latest_community_bundle_data.json", "r")
+community_bundle_data = json.load(f)
+f.close()
+
 
 def asset_path(asset_name):
     """Return the location of a file shipped with the screenshot maker"""
@@ -317,10 +321,23 @@ def generate_requirement_image(
             lib_name = libraries_to_check[0]
             del libraries_to_check[0]
 
-            lib_obj = bundle_data[lib_name]
+            if lib_name in bundle_data:
+                lib_obj = bundle_data[lib_name]
+                bundle_used = bundle_data
+            elif lib_name in community_bundle_data:
+                lib_obj = community_bundle_data[lib_name]
+                bundle_used = community_bundle_data
+            else:
+                # handle lib that is not in any known bundle
+                if "." in lib_name:
+                    file_list.add(lib_name)
+                else:
+                    package_list.add(lib_name)
+                continue
+
             for dep_name in lib_obj["dependencies"]:
                 libraries_to_check.append(dep_name)
-                dep_obj = bundle_data[dep_name]
+                dep_obj = bundle_used[dep_name]
                 if dep_obj["package"]:
                     package_list.add(dep_name)
                 else:

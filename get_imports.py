@@ -13,8 +13,14 @@ import findimports
 import requests
 
 
-BUNDLE_DATA = "latest_bundle_data.json"
-BUNDLE_TAG = "latest_bundle_tag.json"
+ADAFRUIT_BUNDLE_DATA = "latest_bundle_data.json"
+ADAFRUIT_BUNDLE_TAG = "latest_bundle_tag.json"
+
+COMMUNITY_BUNDLE_DATA = "latest_community_bundle_data.json"
+COMMUNITY_BUNDLE_TAG = "latest_community_bundle_tag.json"
+
+ADAFRUIT_BUNDLE_S3_URL = "https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"
+COMMUNITY_BUNDLE_S3_URL = "https://adafruit-circuit-python.s3.amazonaws.com/bundles/community/circuitpython-community-bundle-{tag}.json"
 
 LEARN_GUIDE_REPO = os.environ.get(
     "LEARN_GUIDE_REPO", "../Adafruit_Learning_System_Guides/"
@@ -36,16 +42,13 @@ SHOWN_FILETYPES = [
 SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
 
-def get_bundle(tag):
-    """Download the given bundle's data to BUNDLE_DATA"""
-    url = f"https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"  # pylint: disable=line-too-long
-    print(f"get bundle metadata from {url}")
-    r = requests.get(url)
-    with open(BUNDLE_DATA, "wb") as bundle_file:
+def get_bundle(bundle_url, bundle_data_file):
+    """Download the Adafruit and Community bundles data"""
+    #url = f"https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"  # pylint: disable=line-too-long
+    print(f"get bundle metadata from {bundle_url}")
+    r = requests.get(bundle_url)
+    with open(bundle_data_file, "wb") as bundle_file:
         bundle_file.write(r.content)
-
-
-LATEST_BUNDLE_VERSION = ""
 
 
 def get_latest_release_from_url(url):
@@ -65,44 +68,40 @@ def get_latest_release_from_url(url):
     return tag
 
 
-def get_latest_tag():
+def get_latest_tag(repo_url):
     """
     Find the value of the latest tag for the Adafruit CircuitPython library
     bundle.
     :return: The most recent tag value for the project.
     """
-    global LATEST_BUNDLE_VERSION  # pylint: disable=global-statement
-    if LATEST_BUNDLE_VERSION == "":
-        LATEST_BUNDLE_VERSION = get_latest_release_from_url(
-            "https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/latest"
-        )
-    return LATEST_BUNDLE_VERSION
+
+    return get_latest_release_from_url(repo_url)
 
 
-def ensure_latest_bundle():
+def ensure_latest_bundle(bundle_url, bundle_s3_url, bundle_tag_file, bundle_data_file):
     """
     Ensure that there's a copy of the latest library bundle available so circup
     can check the metadata contained therein.
     """
     print("Checking for library updates.")
-    tag = get_latest_tag()
+    tag = get_latest_tag(bundle_url)
     old_tag = "0"
-    if os.path.isfile(BUNDLE_TAG):
-        with open(BUNDLE_TAG, encoding="utf-8") as data:
+    if os.path.isfile(bundle_tag_file):
+        with open(bundle_tag_file, encoding="utf-8") as data:
             try:
                 old_tag = json.load(data)["tag"]
             except json.decoder.JSONDecodeError as _:
                 # Sometimes (why?) the JSON file becomes corrupt. In which case
                 # log it and carry on as if setting up for first time.
-                print(f"Could not parse {BUNDLE_TAG:r}")
+                print(f"Could not parse {bundle_tag_file:r}")
     if tag > old_tag:
         print(f"New version available {tag}.")
         try:
-            get_bundle(tag)
-            with open(BUNDLE_TAG, "w", encoding="utf-8") as data:
+            get_bundle(bundle_s3_url.replace("{tag}", tag), bundle_data_file)
+            with open(bundle_tag_file, "w", encoding="utf-8") as data:
                 json.dump({"tag": tag}, data)
         except requests.exceptions.HTTPError as _:
-            # See #20 for reason this this
+            # See #20 for reason this
             print(
                 (
                     "There was a problem downloading the bundle. "
@@ -114,10 +113,18 @@ def ensure_latest_bundle():
         print(f"Current library bundle up to date {tag}")
 
 
-ensure_latest_bundle()
+ensure_latest_bundle("https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/latest",
+                     ADAFRUIT_BUNDLE_S3_URL,
+                     ADAFRUIT_BUNDLE_TAG, ADAFRUIT_BUNDLE_DATA)
+ensure_latest_bundle("https://github.com/adafruit/CircuitPython_Community_Bundle/releases/latest",
+                     COMMUNITY_BUNDLE_S3_URL,
+                     COMMUNITY_BUNDLE_TAG, COMMUNITY_BUNDLE_DATA)
 
-with open("latest_bundle_data.json", "r") as f:
+with open(ADAFRUIT_BUNDLE_DATA, "r") as f:
     bundle_data = json.load(f)
+
+with open(COMMUNITY_BUNDLE_DATA, "r") as f:
+    community_bundle_data = json.load(f)
 
 
 def get_files_for_project(project_name):
@@ -161,7 +168,7 @@ def get_libs_for_project(project_name):
 
             for cur_import in found_imports:
                 cur_lib = cur_import.name.split(".")[0]
-                if cur_lib in bundle_data:
+                if cur_lib in bundle_data or cur_lib in community_bundle_data:
                     found_libs.add(cur_lib)
 
     return found_libs
