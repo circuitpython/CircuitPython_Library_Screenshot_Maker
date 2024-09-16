@@ -19,8 +19,8 @@ ADAFRUIT_BUNDLE_TAG = "latest_bundle_tag.json"
 COMMUNITY_BUNDLE_DATA = "latest_community_bundle_data.json"
 COMMUNITY_BUNDLE_TAG = "latest_community_bundle_tag.json"
 
-ADAFRUIT_BUNDLE_S3_URL = "https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"
-COMMUNITY_BUNDLE_S3_URL = "https://adafruit-circuit-python.s3.amazonaws.com/bundles/community/circuitpython-community-bundle-{tag}.json"
+ADAFRUIT_BUNDLE_S3_URL = "https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"  # pylint: disable=line-too-long
+COMMUNITY_BUNDLE_S3_URL = "https://adafruit-circuit-python.s3.amazonaws.com/bundles/community/circuitpython-community-bundle-{tag}.json"  # pylint: disable=line-too-long
 
 LEARN_GUIDE_REPO = os.environ.get(
     "LEARN_GUIDE_REPO", "../Adafruit_Learning_System_Guides/"
@@ -44,7 +44,6 @@ SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
 def get_bundle(bundle_url, bundle_data_file):
     """Download the Adafruit and Community bundles data"""
-    #url = f"https://adafruit-circuit-python.s3.amazonaws.com/bundles/adafruit/adafruit-circuitpython-bundle-{tag}.json"  # pylint: disable=line-too-long
     print(f"get bundle metadata from {bundle_url}")
     r = requests.get(bundle_url)
     with open(bundle_data_file, "wb") as bundle_file:
@@ -113,17 +112,23 @@ def ensure_latest_bundle(bundle_url, bundle_s3_url, bundle_tag_file, bundle_data
         print(f"Current library bundle up to date {tag}")
 
 
-ensure_latest_bundle("https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/latest",
-                     ADAFRUIT_BUNDLE_S3_URL,
-                     ADAFRUIT_BUNDLE_TAG, ADAFRUIT_BUNDLE_DATA)
-ensure_latest_bundle("https://github.com/adafruit/CircuitPython_Community_Bundle/releases/latest",
-                     COMMUNITY_BUNDLE_S3_URL,
-                     COMMUNITY_BUNDLE_TAG, COMMUNITY_BUNDLE_DATA)
+ensure_latest_bundle(
+    "https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/latest",
+    ADAFRUIT_BUNDLE_S3_URL,
+    ADAFRUIT_BUNDLE_TAG,
+    ADAFRUIT_BUNDLE_DATA,
+)
+ensure_latest_bundle(
+    "https://github.com/adafruit/CircuitPython_Community_Bundle/releases/latest",
+    COMMUNITY_BUNDLE_S3_URL,
+    COMMUNITY_BUNDLE_TAG,
+    COMMUNITY_BUNDLE_DATA,
+)
 
 with open(ADAFRUIT_BUNDLE_DATA, "r", encoding="utf-8") as f:
     bundle_data = json.load(f)
 
-with open(COMMUNITY_BUNDLE_DATA, "r") as f:
+with open(COMMUNITY_BUNDLE_DATA, "r", encoding="utf-8") as f:
     community_bundle_data = json.load(f)
 
 

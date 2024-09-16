@@ -41,9 +41,8 @@ HIDDEN_TEXT_COLOR = "#808080"
 with open("latest_bundle_data.json", "r", encoding="utf-8") as f:
     bundle_data = json.load(f)
 
-f = open("latest_community_bundle_data.json", "r")
-community_bundle_data = json.load(f)
-f.close()
+with open("latest_community_bundle_data.json", "r", encoding="utf-8") as f:
+    community_bundle_data = json.load(f)
 
 
 def asset_path(asset_name):
