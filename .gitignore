@@ -5,6 +5,8 @@
 __pycache__
 latest_bundle_data.json
 latest_bundle_tag.json
+latest_community_bundle_data.json
+latest_community_bundle_tag.json
 generated_images
 
 # Virtual environment-specific files
