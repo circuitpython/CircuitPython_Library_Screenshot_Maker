@@ -163,7 +163,7 @@ def generate_requirement_image(
             )
 
     def make_header(position, project_files, files_and_libs):
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-branches
         # Static files
         make_line(
             "CIRCUITPY",
@@ -198,8 +198,7 @@ def generate_requirement_image(
             icon=file_icon,
         )
 
-        # TODO: Add settings.toml if it's needed
-
+        # Add settings.toml if it's needed
         if settings_required(files_and_libs):
             make_line(
                 "settings.toml",
@@ -247,6 +246,10 @@ def generate_requirement_image(
 
         extra_rows = 0
         for i, file in enumerate(sorted(project_folders_to_draw.keys())):
+            if len(project_folders_to_draw[file]) > 0:
+                triangle_to_use = down_triangle
+            else:
+                triangle_to_use = right_triangle
             make_line(
                 file,
                 (
@@ -257,7 +260,7 @@ def generate_requirement_image(
                         * (begin_y_offset + i + len(project_files_to_draw) + extra_rows)
                     ),
                 ),
-                triangle_icon=down_triangle,
+                triangle_icon=triangle_to_use,
             )
             rows_added += 1
             for sub_file in sorted(project_folders_to_draw[file]):

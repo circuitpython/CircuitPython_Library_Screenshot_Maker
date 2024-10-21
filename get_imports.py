@@ -16,6 +16,8 @@ import requests
 BUNDLE_DATA = "latest_bundle_data.json"
 BUNDLE_TAG = "latest_bundle_tag.json"
 
+SUBDIRECTORY_FILECOUNT_LIMIT = 10
+
 LEARN_GUIDE_REPO = os.environ.get(
     "LEARN_GUIDE_REPO", "../Adafruit_Learning_System_Guides/"
 )
@@ -141,8 +143,9 @@ def get_files_for_project(project_name):
             if cur_tuple[0].split("/")[-1] == _dir:
                 for _sub_dir in cur_tuple[1]:
                     dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
-                for _sub_file in cur_tuple[2]:
-                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
+                if len(cur_tuple[2]) < SUBDIRECTORY_FILECOUNT_LIMIT:
+                    for _sub_file in cur_tuple[2]:
+                        dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
 
         # e.g. ("dir_name", ("file_1.txt", "file_2.txt"))
         found_files.add(dir_tuple)
