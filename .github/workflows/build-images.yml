@@ -10,9 +10,14 @@ on:
 
 jobs:
   build-images:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v2
+    - run: python3 -m venv build_images_venv
+    - name: Activate virtualenv
+      run: |
+        . build_images_venv/bin/activate
+        echo PATH=$PATH >> $GITHUB_ENV
     - run: python3 -mpip install -r requirements.txt
     - run: git clone --depth=1 https://github.com/adafruit/Adafruit_Learning_System_Guides learn
     - run: env LEARN_GUIDE_REPO=learn/ python3 create_requirement_images.py
