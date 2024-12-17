@@ -180,7 +180,8 @@ def get_libs_for_project(project_name):
                     found_libs.add(cur_lib)
                 if cur_import.name.endswith(".*"):
                     filepath = os.path.join(
-                        project_dir, "/".join(cur_import.name[:-2].split(".")) + ".py"
+                        project_dir,
+                        os.path.join(*cur_import.name[:-2].split(".")) + ".py",
                     )
                     if os.path.exists(filepath):
                         second_level_imports = findimports.find_imports(filepath)
