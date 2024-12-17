@@ -165,6 +165,7 @@ def get_files_for_project(project_name):
 
 
 def get_libs_for_project(project_name):
+    # pylint: disable=too-many-nested-blocks
     """Get the set of libraries for a learn project"""
     found_libs = set()
     found_imports = []
@@ -173,11 +174,26 @@ def get_libs_for_project(project_name):
         if file.endswith(".py"):
 
             found_imports = findimports.find_imports(f"{project_dir}{file}")
-
             for cur_import in found_imports:
                 cur_lib = cur_import.name.split(".")[0]
                 if cur_lib in bundle_data or cur_lib in community_bundle_data:
                     found_libs.add(cur_lib)
+
+                # findimports returns import name in the form of "foo.bar.*"
+                if cur_import.name.endswith(".*"):
+                    filepath = os.path.join(
+                        project_dir,
+                        os.path.join(*cur_import.name[:-2].split(".")) + ".py",
+                    )
+                    if os.path.exists(filepath):
+                        second_level_imports = findimports.find_imports(filepath)
+                        for cur_second_level_import in second_level_imports:
+                            cur_lib = cur_second_level_import.name.split(".")[0]
+                            if (
+                                cur_lib in bundle_data
+                                or cur_lib in community_bundle_data
+                            ):
+                                found_libs.add(cur_lib)
 
     return found_libs
 
