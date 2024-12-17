@@ -179,8 +179,7 @@ def get_libs_for_project(project_name):
                 if cur_lib in bundle_data or cur_lib in community_bundle_data:
                     found_libs.add(cur_lib)
 
-                # check if it's a wildcard import e.g.
-                # from module.submodule import *
+                # findimports returns import name in the form of ``foo.bar.*``
                 if cur_import.name.endswith(".*"):
                     filepath = os.path.join(
                         project_dir,
