@@ -13,7 +13,7 @@ LIBRARIES_THAT_REQUIRE_SETTINGS = [
     "adafruit_minimqtt",
     "adafruit_portalbase",
     "adafruit_azureiot",
-    "adafruit_connection_manager",
+    "adafruit_connection_manager.mpy",
 ]
 
 

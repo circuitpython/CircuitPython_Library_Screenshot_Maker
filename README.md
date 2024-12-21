@@ -25,6 +25,13 @@ python3 create_requirement_images.py learn --guide [Learn Guide Name]
 python3 create_requirement_images.py learn -g [Learn Guide Name]
 ```
 
+### Generate Single Library Bundle Example Image
+```shell
+python3 create_requirement_images.py bundle [path to example].py
+# e.g.
+python3 create_requirement_images.py bundle Adafruit_CircuitPythonBundle/libraries/helpers/wiz/wiz_buttons_controller.py
+```
+
 ### Help Command
 The help command will list all possible commands and arguments.
 
