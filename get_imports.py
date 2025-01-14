@@ -220,11 +220,15 @@ def get_files_for_example(example_path):
                 for _sub_dir in cur_tuple[1]:
                     dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
                 for _sub_file in cur_tuple[2]:
-                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
+                    if _sub_file.split(".")[-1] in SHOWN_FILETYPES_EXAMPLE:
+                        dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
 
         # e.g. ("dir_name", ("file_1.txt", "file_2.txt"))
 
-        if ".circuitpython.skip-screenshot" not in dir_tuple[1]:
+        if (
+            ".circuitpython.skip-screenshot" not in dir_tuple[1]
+            and len(dir_tuple[1]) > 0
+        ):
             found_files.add(dir_tuple)
     return found_files
 
