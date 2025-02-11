@@ -14,6 +14,7 @@ LIBRARIES_THAT_REQUIRE_SETTINGS = [
     "adafruit_portalbase",
     "adafruit_azureiot",
     "adafruit_connection_manager.mpy",
+    "adafruit_ntp.mpy",
 ]
 
 
