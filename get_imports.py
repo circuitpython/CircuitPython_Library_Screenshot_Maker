@@ -31,15 +31,19 @@ LEARN_GUIDE_REPO = os.environ.get(
 SHOWN_FILETYPES = [
     "py",
     "mpy",
+    "txt",
+    "toml",
     "bmp",
-    "pcf",
-    "bdf",
+    "png",
+    "jpg",
     "wav",
     "mp3",
     "mid",
-    "json",
-    "txt",
+    "pcf",
+    "bdf",
     "csv",
+    "json",
+    "license",
 ]
 SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
