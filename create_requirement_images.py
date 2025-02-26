@@ -72,6 +72,7 @@ FILE_TYPE_ICON_MAP = {
     "toml": file_icon,
     "bmp": file_image_icon,
     "png": file_image_icon,
+    "jpg": file_image_icon,
     "wav": file_music_icon,
     "mp3": file_music_icon,
     "mid": file_music_icon,
