@@ -32,6 +32,7 @@ SHOWN_FILETYPES = [
     "py",
     "mpy",
     "txt",
+    "md",
     "toml",
     "html",
     "bmp",
