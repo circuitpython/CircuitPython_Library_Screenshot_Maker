@@ -69,6 +69,7 @@ FILE_TYPE_ICON_MAP = {
     "py": file_icon,
     "mpy": file_icon,
     "txt": file_empty_icon,
+    "md": file_empty_icon,
     "toml": file_icon,
     "html": file_icon,
     "bmp": file_image_icon,
