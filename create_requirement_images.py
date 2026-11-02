@@ -11,6 +11,7 @@ Create requirement screenshots for learn guide projects
 from multiprocessing import Pool
 import json
 import os
+import re
 
 import click
 from PIL import Image, ImageDraw, ImageFont
@@ -38,6 +39,27 @@ ROW_COLOR = "#383838"
 TEXT_COLOR = "#B0B0B0"
 HIDDEN_TEXT_COLOR = "#808080"
 
+OR_MARKER_COLOR = "#E0A030"
+OR_MARKER_BADGE_TEXT_COLOR = "#303030"
+OR_MARKER_LABEL = "choose one"
+
+# Architectures that native .mpy files can be built for
+MPY_ARCHITECTURES = (
+    "x86",
+    "x64",
+    "armv6",
+    "armv6m",
+    "armv7m",
+    "armv7em",
+    "armv7emsp",
+    "armv7emdp",
+    "xtensa",
+    "xtensawin",
+    "rv32imc",
+    "rv64imc",
+)
+ARCH_MPY_PATTERN = re.compile(rf"^(.+)\.({'|'.join(MPY_ARCHITECTURES)})\.mpy$")
+
 with open("latest_bundle_data.json", "r", encoding="utf-8") as f:
     bundle_data = json.load(f)
 
@@ -51,6 +73,7 @@ def asset_path(asset_name):
 
 
 font = ImageFont.truetype(asset_path("Roboto-Regular.ttf"), 24)
+small_font = ImageFont.truetype(asset_path("Roboto-Regular.ttf"), 18)
 right_triangle = Image.open(asset_path("img/right_triangle.png"))
 down_triangle = Image.open(asset_path("img/down_triangle.png"))
 
@@ -89,6 +112,41 @@ FILE_TYPE_ICON_MAP = {
 # If this is not done, the images fail to load in the subprocesses.
 for _file_icon in FILE_TYPE_ICON_MAP.values():
     _file_icon.load()
+
+
+def arch_mpy_module(file_name):
+    """Return the module name of an arch specific .mpy file, otherwise None"""
+    match = ARCH_MPY_PATTERN.match(file_name)
+    return match.group(1) if match else None
+
+
+def file_sort_key(file_name):
+    """Sort key that keeps the arch specific .mpy files of a module together"""
+    return (arch_mpy_module(file_name) or file_name, file_name)
+
+
+def find_arch_variant_groups(file_names):
+    """
+    Find the runs of files that are builds of one module for different
+    architectures. file_names must already be sorted with file_sort_key.
+
+    :return: A list of (first index, last index) tuples.
+    """
+    groups = []
+    start = 0
+    while start < len(file_names):
+        module = arch_mpy_module(file_names[start])
+        end = start
+        while (
+            module is not None
+            and end + 1 < len(file_names)
+            and arch_mpy_module(file_names[end + 1]) == module
+        ):
+            end += 1
+        if end > start:
+            groups.append((start, end))
+        start = end + 1
+    return groups
 
 
 def generate_requirement_image(
@@ -170,6 +228,71 @@ def generate_requirement_image(
                 font=font,
             )
 
+    def make_or_markers(file_names, position):
+        """
+        Bracket each group of arch specific .mpy files together with an "OR"
+        badge to show that only one file of the group is needed.
+
+        :param file_names: Names drawn on consecutive rows
+        :param position: Position of the first row, as passed to make_line
+        """
+        groups = find_arch_variant_groups(file_names)
+        if not groups:
+            return
+
+        longest_name = max(
+            font.getlength(file_names[i])
+            for first, last in groups
+            for i in range(first, last + 1)
+        )
+        bracket_left = position[0] + 30 + int(longest_name) + 10
+        bracket_right = bracket_left + 8
+        badge_left = bracket_right + 8
+        badge_size = (40, 22)
+
+        for first, last in groups:
+            top = position[1] + first * LINE_SPACING + 6
+            bottom = position[1] + (last + 1) * LINE_SPACING - 6
+            middle = (top + bottom) // 2
+
+            draw.line(
+                [
+                    (bracket_left, top),
+                    (bracket_right, top),
+                    (bracket_right, bottom),
+                    (bracket_left, bottom),
+                ],
+                fill=OR_MARKER_COLOR,
+                width=2,
+            )
+            draw.line(
+                [(bracket_right, middle), (badge_left, middle)],
+                fill=OR_MARKER_COLOR,
+                width=2,
+            )
+            draw.rounded_rectangle(
+                [
+                    (badge_left, middle - badge_size[1] // 2),
+                    (badge_left + badge_size[0], middle + badge_size[1] // 2),
+                ],
+                radius=badge_size[1] // 2,
+                fill=OR_MARKER_COLOR,
+            )
+            draw.text(
+                (badge_left + badge_size[0] // 2, middle),
+                "OR",
+                fill=OR_MARKER_BADGE_TEXT_COLOR,
+                anchor="mm",
+                font=small_font,
+            )
+            draw.text(
+                (badge_left + badge_size[0] + 8, middle),
+                OR_MARKER_LABEL,
+                fill=OR_MARKER_COLOR,
+                anchor="lm",
+                font=small_font,
+            )
+
     def make_header(position, project_files, files_and_libs):
         # pylint: disable=too-many-locals, too-many-branches
         # Static files
@@ -237,7 +360,8 @@ def generate_requirement_image(
                     project_folders_to_draw[cur_file[0]] = cur_file[1]
 
         begin_y_offset = 7 if context["added_settings_toml"] else 6
-        for i, file in enumerate(sorted(project_files_to_draw)):
+        project_files_to_draw.sort(key=file_sort_key)
+        for i, file in enumerate(project_files_to_draw):
             cur_file_extension = file.split(".")[-1]
 
             cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, file_empty_icon)
@@ -251,6 +375,14 @@ def generate_requirement_image(
                 icon=cur_file_icon,
             )
             rows_added += 1
+
+        make_or_markers(
+            project_files_to_draw,
+            (
+                position[0] + INDENT_SIZE * 2,
+                position[1] + (LINE_SPACING * begin_y_offset),
+            ),
+        )
 
         extra_rows = 0
         for i, file in enumerate(sorted(project_folders_to_draw.keys())):
@@ -271,7 +403,15 @@ def generate_requirement_image(
                 triangle_icon=triangle_to_use,
             )
             rows_added += 1
-            for sub_file in sorted(project_folders_to_draw[file]):
+            sub_files_to_draw = sorted(project_folders_to_draw[file], key=file_sort_key)
+            make_or_markers(
+                sub_files_to_draw,
+                (
+                    position[0] + INDENT_SIZE * 3,
+                    position[1] + (LINE_SPACING * (begin_y_offset + rows_added)),
+                ),
+            )
+            for sub_file in sub_files_to_draw:
                 extra_rows += 1
                 cur_file_extension = sub_file.split(".")[-1]
                 cur_file_icon = FILE_TYPE_ICON_MAP.get(cur_file_extension, folder_icon)
@@ -358,7 +498,7 @@ def generate_requirement_image(
 
     def sort_libraries(libraries):
         package_list, file_list = get_dependencies(libraries)
-        return sorted(package_list) + sorted(file_list)
+        return sorted(package_list) + sorted(file_list, key=file_sort_key)
 
     def count_files(files_list):
         _count = 0
@@ -392,6 +532,15 @@ def generate_requirement_image(
                 ),
                 triangle_icon=triangle_icon,
             )
+
+        make_or_markers(
+            libraries,
+            (
+                position[0] + INDENT_SIZE * 3,
+                position[1]
+                + (LINE_SPACING * (1 if context["added_settings_toml"] else 0)),
+            ),
+        )
 
     def make_sd_dir(position):
         make_line(

@@ -50,6 +50,8 @@ SHOWN_FILETYPES = [
 ]
 SHOWN_FILETYPES_EXAMPLE = [s for s in SHOWN_FILETYPES if s != "py"]
 
+HIDDEN_DIRECTORIES = ("__pycache__",)
+
 
 def get_bundle(bundle_url, bundle_data_file):
     """Download the Adafruit and Community bundles data"""
@@ -157,11 +159,14 @@ def get_files_for_project(project_name):
                 found_files.add(file)
 
     for _dir in root_level[1]:
+        if _dir in HIDDEN_DIRECTORIES:
+            continue
         dir_tuple = (_dir, tuple())
         for cur_tuple in os.walk(project_dir):
             if cur_tuple[0].split("/")[-1] == _dir:
                 for _sub_dir in cur_tuple[1]:
-                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
+                    if _sub_dir not in HIDDEN_DIRECTORIES:
+                        dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
                 if len(cur_tuple[2]) < SUBDIRECTORY_FILECOUNT_LIMIT:
                     for _sub_file in cur_tuple[2]:
                         dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))
@@ -221,11 +226,14 @@ def get_files_for_example(example_path):
                 found_files.add(file)
 
     for _dir in root_level[1]:
+        if _dir in HIDDEN_DIRECTORIES:
+            continue
         dir_tuple = (_dir, tuple())
         for cur_tuple in os.walk(example_dir):
             if cur_tuple[0].split("/")[-1] == _dir:
                 for _sub_dir in cur_tuple[1]:
-                    dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
+                    if _sub_dir not in HIDDEN_DIRECTORIES:
+                        dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_dir,))
                 for _sub_file in cur_tuple[2]:
                     if _sub_file.split(".")[-1] in SHOWN_FILETYPES_EXAMPLE:
                         dir_tuple = (dir_tuple[0], dir_tuple[1] + (_sub_file,))

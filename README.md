@@ -32,6 +32,9 @@ python3 create_requirement_images.py bundle [path to example].py
 python3 create_requirement_images.py bundle Adafruit_CircuitPythonBundle/libraries/helpers/wiz/wiz_buttons_controller.py
 ```
 
+### Architecture Specific .mpy Files
+Files built for different architectures of the same module, like `_foo.armv7emsp.mpy` and `_foo.rv32imc.mpy`, are bracketed together with an "OR" badge in the screenshot to show that only one of them is needed.
+
 ### Help Command
 The help command will list all possible commands and arguments.
 
